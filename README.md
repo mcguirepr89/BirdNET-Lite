@@ -1,110 +1,41 @@
-# BirdNET-Lite
-TFLite version of BirdNET. Bird sound recognition for more than 6,000 species worldwide.
+# Birding Pi
+![version](https://img.shields.io/badge/version-0.1-blue)
 
-Center for Conservation Bioacoustics, Cornell Lab of Ornithology, Cornell University
+A realtime acoustic bird classification system for the Reaspberry Pi 4B
 
-Go to https://birdnet.cornell.edu to learn more about the project.
+## Inroduction
+The birding pi project is based on the BirdNet-Lite project and is able to recognize bird sounds from the microphne and the sound card in realtime. The system installs all needed services on the rasperi pi. 
 
-Want to use BirdNET to analyze a large dataset? Don't hesitate to contact us: ccb-birdnet@cornell.edu
+## Requirements
+* A Raspberry Pi 4B
+* A SD Card with the 64-bit version of Raspberi OS installed (download link)
+* A USB Microphone or Sound Card
 
-# Setup (Ubuntu 18.04)
+## Installation
+The system can be installed with:
 
-TFLite for x86 platforms comes with the standard Tensorflow package. If you are on a different platform, you need to install a dedicated version of TFLite (e.g., a pre-compiled version for Raspberry Pi). See Raspberry Pi 4B installation instructions below.
+`curl -s https://raw.githubusercontent.com/mcguirepr89/BirdNET-Lite/rpi4/Birders_Guide_Installer.sh | bash`
 
-## x86
-We need to setup TF2.3+ for BirdNET. First, we install Python 3 and pip:
+The script installs the `Birding-Pi` system in the Home folder and restartes the system. Also the geo coordinates are required to fullfil the configuration file including some passowrds. Restart the rasperry pi anter the installer script has finished. If you have trouble with the installation script you can restart the installation at any time while running the script again `~/Birding-Pi/Birders_Guide_installer.sh`.
 
-```
-sudo apt-get update
-sudo apt-get install python3-dev python3-pip
-sudo pip3 install --upgrade pip
-```
+## Access
+The Birding Pi system can be accessed with the webbrowser:
 
-Then, we can install Tensorflow with:
+```http://birdnetsystem.local```
 
-```
-sudo pip3 install tensorflow
-```
+## Uninstallation
+`/usr/local/bin/uninstall.sh && cd ~ && rm -drf Birding-Pi`
 
-TFLite on x86 platform currently only supports CPUs. 
+## ToDo, Notes, and Comming Soon 
 
-Note: Make sure to set `CUDA_VISIBLE_DEVICES=""` in your environment variables. Or set `os.environ['CUDA_VISIBLE_DEVICES'] = ''` at the top of your Python script.
+### Internationalisation:
+The bird names are by default in english, but there are also localozed versions availabe. Please download the labels_l18n.zip file and replace the `model/labels.txt` with the corresponding language.
 
-In this example, we use Librosa to open audio files. Install Librosa with:
-
-```
-sudo pip3 install librosa
-sudo apt-get install ffmpeg
-```
-
-You can use any other audio lib if you like, or pass raw audio signals to the model.
-
-If you don't use Librosa, make sure to install NumPy:
+### Tips:
+You try to overclock your raspery with:
 
 ```
-sudo pip3 install numpy
+over_voltage=6
+arm_freq=1750
 ```
-
-Note: BirdNET expects 3-second chunks of raw audio data, sampled at 48 kHz.
-
-## Raspberry Pi 4B running AArch64 OS
-These steps install BirdNET-Lite on a Raspberry Pi 4B running an AArch64 OS using pre-built TFLite binaries.
-1. Install dependencies<br>`sudo apt install swig libjpeg-dev zlib1g-dev python3-dev unzip wget python3-pip curl git cmake make`
-1. Update pip, wheel, and setuptools:<br>`sudo pip3 install --upgrade pip wheel setuptools`
-1. Fetch pre-built binaries:
-   1. `curl -sc /tmp/cookie "https://drive.google.com/uc?export=download&id=1dlEbugFDJXs-YDBCUC6WjADVtIttWxZA" > /dev/null`
-   1. `CODE="$(awk '/_warning_/ {print $NF}' /tmp/cookie)"`
-   1. `curl -Lb /tmp/cookie "https://drive.google.com/uc?export=download&confirm=${CODE}&id=1dlEbugFDJXs-YDBCUC6WjADVtIttWxZA" -o tflite_runtime-2.6.0-cp37-none-linux_aarch64.whl` 
-1. `sudo pip3 install --upgrade tflite_runtime-2.6.0-cp37-none-linux_aarch64.whl`
-1. `sudo pip3 install librosa`
-1. `sudo apt-get install ffmpeg`
-1. `git clone https://github.com/kahst/BirdNET-Lite.git`
-1. `cd BirdNET-Lite/`<br>and test:
-1. `python3 analyze.py --i 'example/XC558716 - Soundscape.mp3' --lat 35.4244 --lon -120.7463 --week 18`
-
-# Usage
-
-You can run BirdNET via the command line. You can add a few parameters that affect the output.
-
-The input parameters include:
-
-```
---i, Path to input file.
---o, Path to output file. Defaults to result.csv.
---lat, Recording location latitude. Set -1 to ignore.
---lon, Recording location longitude. Set -1 to ignore.
---week, Week of the year when the recording was made. Values in [1, 48] (4 weeks per month). Set -1 to ignore.
---overlap, Overlap in seconds between extracted spectrograms. Values in [0.0, 2.9]. Defaults tp 0.0.
---sensitivity, Detection sensitivity; Higher values result in higher sensitivity. Values in [0.5, 1.5]. Defaults to 1.0.
---min_conf, Minimum confidence threshold. Values in [0.01, 0.99]. Defaults to 0.1.
---custom_list, Path to text file containing a list of species. Not used if not provided.
-```
-
-Note: A custom species list needs to contain one species label per line. Take a look at the `model/label.txt` for the correct species label. Only labels from this text file are valid. You can find an example of a valid custom list in the 'example' folder.
-
-Here are two example commands to run this BirdNET version:
-
-```
-
-python3 analyze.py --i 'example/XC558716 - Soundscape.mp3' --lat 35.4244 --lon -120.7463 --week 18
-
-python3 analyze.py --i 'example/XC563936 - Soundscape.mp3' --lat 47.6766 --lon -122.294 --week 11 --overlap 1.5 --min_conf 0.25 --sensitivity 1.25 --custom_list 'example/custom_species_list.txt'
-
-```
-
-Note: Please make sure to provide lat, lon, and week. BirdNET will work without these values, but the results might be less reliable.
-
-The results of the anlysis will be stored in a result file in CSV format. All confidence values are raw prediction scores and should be post-processed to eliminate occasional false-positive results.
-
-# Contact us
-
-Please don't hesitate to contact us if you have any issues with the code or if you have any other remarks or questions.
-
-Our e-mail address: ccb-birdnet@cornell.edu
-
-We are always open for a collaboration with you.
-
-# Funding
-
-This project is supported by Jake Holshuh (Cornell class of ’69). The Arthur Vining Davis Foundations also kindly support our efforts.
-
+But be aware of the stabillity and the power consumption.
