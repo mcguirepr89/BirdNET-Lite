@@ -41,7 +41,7 @@ The Birding Pi system can be accessed from any the web browser on the same netwo
 ## ToDo, Notes, and Comming Soon 
 
 ### Internationalisation:
-The bird names are in English by default, but other localized versions are available. Please download the labels_l18n.zip file and replace the `model/labels.txt` with the corresponding language.
+The bird names are in English by default, but other localized versions are available. Please download the [labels_l18n.zip](https://github.com/kahst/BirdNET-Lite/files/7288803/labels_l18n.zip) file and replace the `model/labels.txt` with the corresponding language.
 
 ### Tips:
 You can try to overclock your Pi by placing the following in your `/boot/config.txt` file:
