@@ -8,7 +8,7 @@ The Birding Pi project is based on the BirdNet-Lite project and is able to recog
 
 ## Requirements
 * A Raspberry Pi 4B
-* A SD Card with the 64-bit version of RaspiOS installed [(download the latest here)](https://downloads.raspberrypi.org/raspios_arm64/images/)
+* A 64GB SD Card with the 64-bit version of RaspiOS installed [(download the latest here)](https://downloads.raspberrypi.org/raspios_arm64/images/)
 * A USB Microphone or Sound Card
 
 ## Installation
