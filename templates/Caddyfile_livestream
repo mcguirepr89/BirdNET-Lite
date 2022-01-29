@@ -1,4 +1,4 @@
-http://birdnetpi.local ${BIRDNETPI_URL} {
+http://${BIRDNET_HOST}.local ${BIRDNETPI_URL} {
   root * ${EXTRACTED}
   file_server browse
   basicauth ${PROCESSED}* {

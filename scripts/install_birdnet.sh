@@ -45,6 +45,17 @@ install_deps() {
   done
 }
 
+install_homepages() {
+  cd ~/BirdNET-Pi/homepage-templates
+  for h in *.html; do
+    if [[ -z  ${BIRDNETPI_URL} ]]; then 
+      sed -e "s/BIRDNET_HOST/${BIRDNET_HOST}/g" $h > ../homepage/$h
+    else
+      sed -e "s,http://BIRDNET_HOST.local,${BIRDNETPI_URL},g" $h > ../homepage/$h
+    fi
+  done
+}
+
 install_birdnet() {
   cd ~/BirdNET-Pi || exit 1
   echo "Establishing a python virtual environment"
@@ -75,7 +86,9 @@ install_birdnet() {
 install_deps
 if [ ! -d ${VENV} ];then
   install_birdnet 
+  install_homepages
 fi
+
 
 echo "	BirdNet is installed!!
 
