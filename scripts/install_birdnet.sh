@@ -88,8 +88,7 @@ echo "	BirdNet is installed!!
   To stop and disable the service, issue: 
      'sudo systemctl disable --now birdnet_analysis.service'
 
-  Visit
-  the BirdNET-Pi homepage at http://birdnetpi.local"
+  Visit your BirdNET-Pi homepage at http://${BIRDNET_HOST}.local"
   echo
 case $YN in
   [Yy] ) sudo systemctl start birdnet_analysis.service \

@@ -21,7 +21,7 @@ function countDown(secs,elem) {
 
 		element.innerHTML = '<h4>Let\'s see</h4>';
 
-		element.innerHTML += '<a href="http://birdnetpi.local"></a>';
+		element.innerHTML += '<a href="http://'.gethostname().'.local"></a>';
 
 	}
 

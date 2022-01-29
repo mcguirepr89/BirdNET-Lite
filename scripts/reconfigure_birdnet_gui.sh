@@ -51,5 +51,5 @@ fi
 
 ${birdnetpi_dir}/scripts/update_birdnet.sh
 sudo apt install -y --reinstall icecast2
-xdg-open http://birdnetpi.local
+xdg-open http://${BIRDNET_HOST}.local
 systemctl --user disable birdnet-pi-welcome-wizard.service

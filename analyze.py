@@ -273,7 +273,7 @@ def main():
                             connection = mysql.connector.connect(host='localhost',
                                                                  database='birds',
                                                                  user='birder',
-                                                                 password='databasepassword')
+                                                                 password='birdnet')
                             cursor = connection.cursor()
                             mySql_insert_query = """INSERT INTO detections (Date, Time, Sci_Name, Com_Name, Confidence, Lat, Lon, Cutoff, Week, Sens, Overlap)
                                                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) """

@@ -18,8 +18,8 @@
 # LATITUDE=48.858
 # LONGITUDE=2.294
 
-LATITUDE=
-LONGITUDE=
+LATITUDE=56.369
+LONGITUDE=-3.135
 
 # 1. CADDY_PWD is the password you will use to access your live audio stream and
 #    maintenance tools. You can set this to anything, but keep it alpha-numeric.
@@ -29,13 +29,13 @@ LONGITUDE=
 #    source.You can set this to anything also, but keep it alpha-numeric. You 
 #    will never use this again, so just set it to your favorite word.
 
-CADDY_PWD=
-ICE_PWD=
+CADDY_PWD=birdnet
+ICE_PWD=birdnet
 
 # DB_PWD is the password that the system will use to access the database. Set 
 # this to anything you want.
 
-DB_PWD=
+DB_PWD=birdnet
 
 # This section can be left alone. If you setup a Pushed.co
 # mobile application, you can enter the App secret and secret

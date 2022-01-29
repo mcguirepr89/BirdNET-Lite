@@ -12,10 +12,10 @@ gotty_url="https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_a
 config_file="$(dirname ${my_dir})/birdnet.conf"
 
 set_hostname() {
-  if [ "$(hostname)" != "birdnetpi" ];then
-    echo "Setting hostname to 'birdnetpi'"
-    hostnamectl set-hostname birdnetpi
-    sed -i 's/raspberrypi/birdnetpi/g' /etc/hosts
+  if [ "$(hostname)" != "${BIRDNET_HOST}" ];then
+    echo "Setting hostname to '${BIRDNET_HOST}'"
+    hostnamectl set-hostname ${BIRDNET_HOST}
+    sed -i 's/raspberrypi/${BIRDNET_HOST}/g' /etc/hosts
   fi
 }
 
@@ -123,28 +123,28 @@ create_necessary_dirs() {
   sudo -u ${USER} ln -fs $(dirname ${my_dir})/homepage/* ${EXTRACTED}  
   if [ ! -z ${BIRDNETLOG_URL} ];then
     BIRDNETLOG_URL="$(echo ${BIRDNETLOG_URL} | sed 's/\/\//\\\/\\\//g')"
-    sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local:8080/"${BIRDNETLOG_URL}"/g" $(dirname ${my_dir})/homepage/*.html
-    phpfiles="$(grep -l "birdnetpi.local:8080" ${my_dir}/*.php)"
+    sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local:8080/"${BIRDNETLOG_URL}"/g" $(dirname ${my_dir})/homepage/*.html
+    phpfiles="$(grep -l "${BIRDNET_HOST}.local:8080" ${my_dir}/*.php)"
     for i in "${phpfiles[@]}";do
-      sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local:8080/"${BIRDNETLOG_URL}"/g" ${i}
+      sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local:8080/"${BIRDNETLOG_URL}"/g" ${i}
     done
   fi
   if [ ! -z ${EXTRACTIONLOG_URL} ];then
     EXTRACTIONLOG_URL="$(echo ${EXTRACTIONLOG_URL} | sed 's/\/\//\\\/\\\//g')"
-    sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local:8888/"${EXTRACTIONLOG_URL}"/g" $(dirname ${my_dir})/homepage/*.html
-    phpfiles="$(grep -l "birdnetpi.local:8888" ${my_dir}/*.php)"
+    sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local:8888/"${EXTRACTIONLOG_URL}"/g" $(dirname ${my_dir})/homepage/*.html
+    phpfiles="$(grep -l "${BIRDNET_HOST}.local:8888" ${my_dir}/*.php)"
     for i in "${phpfiles[@]}";do
-      sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local:8888/"${EXTRACTIONLOG_URL}"/g" ${i}
+      sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local:8888/"${EXTRACTIONLOG_URL}"/g" ${i}
     done
   fi
 
   sudo -u ${USER} ln -fs $(dirname ${my_dir})/scripts ${EXTRACTED}
   if [ ! -z ${BIRDNETPI_URL} ];then
     BIRDNETPI_URL="$(echo ${BIRDNETPI_URL} | sed 's/\/\//\\\/\\\//g')"
-    sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local/"${BIRDNETPI_URL}"/g" $(dirname ${my_dir})/homepage/*.html
-    phpfiles="$(grep -l birdnetpi.local ${my_dir}/*.php)"
+    sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local/"${BIRDNETPI_URL}"/g" $(dirname ${my_dir})/homepage/*.html
+    phpfiles="$(grep -l ${BIRDNET_HOST}.local ${my_dir}/*.php)"
     for i in "${phpfiles[@]}";do
-      sudo -u${USER} sed -i "s/http:\/\/birdnetpi.local/"${BIRDNETPI_URL}"/g" ${i}
+      sudo -u${USER} sed -i "s/http:\/\/${BIRDNET_HOST}.local/"${BIRDNETPI_URL}"/g" ${i}
     done
   fi
 
@@ -249,7 +249,7 @@ install_Caddyfile() {
   if ! [ -z ${CADDY_PWD} ];then
   HASHWORD=$(caddy hash-password -plaintext ${CADDY_PWD})
   cat << EOF > /etc/caddy/Caddyfile
-http://localhost http://birdnetpi.local ${BIRDNETPI_URL} {
+http://localhost http://${BIRDNET_HOST}.local ${BIRDNETPI_URL} {
   root * ${EXTRACTED}
   file_server browse
   basicauth /Processed* {
@@ -270,7 +270,7 @@ http://localhost http://birdnetpi.local ${BIRDNETPI_URL} {
 EOF
   else
     cat << EOF > /etc/caddy/Caddyfile
-http://localhost http://birdnetpi.local ${BIRDNETPI_URL} {
+http://localhost http://${BIRDNET_HOST}.local ${BIRDNETPI_URL} {
   root * ${EXTRACTED}
   file_server browse
   reverse_proxy /stream localhost:8000
@@ -302,7 +302,7 @@ update_etc_hosts() {
   #BIRDNETPI_URL="$(echo ${BIRDNETPI_URL} | sed 's/\/\//\\\/\\\//g')"
   #EXTRACTIONLOG_URL="$(echo ${EXTRACTIONLOG_URL} | sed 's/\/\//\\\/\\\//g')"
   #BIRDNETLOG_URL="$(echo ${BIRDNETLOG_URL} | sed 's/\/\//\\\/\\\//g')"
-  sed -ie s/'birdnetpi.local'/"birdnetpi.local ${BIRDNETPI_URL//https:\/\/} ${EXTRACTIONLOG_URL//https:\/\/} ${BIRDNETLOG_URL//https:\/\/}"/g /etc/hosts
+  sed -ie s/'${BIRDNET_HOST}.local'/"${BIRDNET_HOST}.local ${BIRDNETPI_URL//https:\/\/} ${EXTRACTIONLOG_URL//https:\/\/} ${BIRDNETLOG_URL//https:\/\/}"/g /etc/hosts
 }
 
 install_avahi_aliases() {
@@ -327,7 +327,7 @@ ExecStart=/bin/bash -c "/usr/bin/avahi-publish -a -R %I $(hostname -I |cut -d' '
 [Install]
 WantedBy=multi-user.target
 EOF
-  systemctl enable avahi-alias@birdnetpi.local.service
+  systemctl enable avahi-alias@${BIRDNET_HOST}.local.service
 }
 
 install_spectrogram_service() {
