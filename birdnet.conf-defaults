@@ -2,6 +2,9 @@
 #                    Configuration settings for BirdNET-Pi                     #
 ################################################################################
 
+## Set the hostname of the Birdnet-Pi
+BIRDNET_HOST=birdnetpi
+
 ############ CHANGE THE LATITUDE AND LONGITUDE TO STATIC VALUES ################
 
 
