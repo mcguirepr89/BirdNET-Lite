@@ -165,11 +165,21 @@ def predict(sample, sensitivity):
 
     # Remove species that are on blacklist
     for i in range(min(10, len(p_sorted))):
-        if p_sorted[i][0] in ['Human_Human', 'Non-bird_Non-bird', 'Noise_Noise']:
+        if p_sorted[i][0] in ['Non-bird_Non-bird', 'Noise_Noise']:
             p_sorted[i] = (p_sorted[i][0], 0.0)
+        if p_sorted[i][0]=='Human_Human':
+            print("HUMAN SCORE:",str(p_sorted[i]))
+            HUMAN_FLAG=True
+            with open('/home/pi/BirdNET-Pi/HUMAN.txt', 'a') as rfile:
+                rfile.write(str(datetime.datetime.now())+str(p_sorted[i])+ '\n')
+#             date_stamp=datetime.datetime.now().strftime("%d_%m_%y_%H:%M:%S")
+# 
+#             sf.write('./home/pi/human_sample.wav',np.random.randn(10,2) , 44100) #sample[0]
 
     # Only return first the top ten results
-    return p_sorted[:10]
+    #INCREASE THIS TO SEE IF HUMAN IS DETECTED MORE RELIABLY
+#    print('P_SORTED-------', p_sorted)
+    return p_sorted[:100]
 
 def analyzeAudioData(chunks, lat, lon, week, sensitivity, overlap,):
     global INTERPRETER
@@ -191,15 +201,31 @@ def analyzeAudioData(chunks, lat, lon, week, sensitivity, overlap,):
 
         # Make prediction
         p = predict([sig, mdata], sensitivity)
-
+#        print("PPPPP",p)
+        HUMAN_DETECTED=False
+        #Catch if Human is recognized
+        for x in range(len(p)):
+            if "Human" in p[x][0]:
+#                print("HUMAN DETECTED!!",p[x][0])
+                #clear list
+                HUMAN_DETECTED=True
+                print("CHUNK -----",c)
+         
         # Save result and timestamp
         pred_end = pred_start + 3.0
+        
+        if HUMAN_DETECTED == True:
+            p=[('Human_Human',0.0)]*10
+            print("HUMAN DETECTED!!!",p)
+
         detections[str(pred_start) + ';' + str(pred_end)] = p
+        
         pred_start = pred_end - overlap
 
     print('DONE! Time', int((time.time() - start) * 10) / 10.0, 'SECONDS')
-
+#    print('DETECTIONS:::::',detections)
     return detections
+
 
 def writeResultsToFile(detections, min_conf, path):
 

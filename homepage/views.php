@@ -40,7 +40,7 @@ if(isset($_POST['view'])){
   if($_POST['view'] == "Services"){include('scripts/service_controls.php');}
   if($_POST['view'] == "Spectrogram"){include('spectrogram.php');}
   if($_POST['view'] == "Overview"){include('overview.php');}
-  if($_POST['view'] == "Today's Detections"){include('todays_detections.php');}
+  if($_POST['view'] == "Today's Detections"){include('scripts/todays_detections.php');}
   if($_POST['view'] == "Species Stats"){echo "<br><br>";include('stats.php');}
   if($_POST['view'] == "Streamlit"){header('location:/stats');}
   if($_POST['view'] == "Daily Charts"){include('history.php');}
