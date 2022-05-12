@@ -1,0 +1,30 @@
+name: Python CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.py'
+
+jobs:
+  python-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9.x'
+          cache: 'pip'
+          architecture: 'x64'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run Flake8 Lint
+        run: |
+          DIFF="$(git --no-pager diff -u $(git merge-base HEAD origin/main) -- '**/*.py')"
+          echo "$DIFF" | flake8 --diff
