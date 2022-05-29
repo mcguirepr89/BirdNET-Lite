@@ -232,7 +232,7 @@ def sendAppriseNotifications(species, confidence):
     if os.path.exists(userDir + '/BirdNET-Pi/apprise.txt') and os.path.getsize(userDir + '/BirdNET-Pi/apprise.txt') > 0:
         with open(userDir + '/BirdNET-Pi/scripts/thisrun.txt', 'r') as f:
             this_run = f.readlines()
-            title = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_TITLE')]).split('=')[1]).split('\\')[0]).replace('"', '')
+            title = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_TITLE')]).split('=')[1]).split('\\')[0]).replace('"', '').replace("$comname", species.split("_")[1]).replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence)
             body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[0]).replace('"', '')
 
         if str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFY_EACH_DETECTION')]).split('=')[1]).split('\\')[0]) == "1":
