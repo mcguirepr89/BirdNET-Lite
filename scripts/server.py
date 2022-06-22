@@ -240,7 +240,7 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
                 websiteurl = str(str(str([i for i in this_run if i.startswith('BIRDNETPI_URL')]).split('=')[1]).split('\\')[0]).replace('"', '')
                 if len(websiteurl) == 0:
                     raise ValueError('Blank URL')
-            except Exception as e:
+            except:
                 websiteurl = "http://"+socket.gethostname()+".local"
 
             listenurl = websiteurl+"?filename="+path
@@ -264,7 +264,7 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
                 cur.execute("SELECT DISTINCT(Com_Name), count(Com_Name) FROM detections WHERE date > (SELECT DATETIME('now', '-7 day')) GROUP BY Com_Name")
                 known_species = cur.fetchall()
                 sciName, comName = species.split("_")
-                numberDetections = [d[1] for d in known_species if d[0] == comName.replace("'","")][0]
+                numberDetections = [d[1] for d in known_species if d[0] == comName.replace("'", "")][0]
 
                 if numberDetections <= 5:
                     apobj = apprise.Apprise()
