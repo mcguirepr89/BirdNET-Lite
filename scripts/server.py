@@ -235,7 +235,7 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
             title = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_TITLE')]).split('=')[1]).split('\\')[0]).replace('"', '')
             body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[1]).replace("'", '')
             print("Notification Body " + body)
-            
+
             try:
                 websiteurl = str(str(str([i for i in this_run if i.startswith('BIRDNETPI_URL')]).split('=')[1]).split('\\')[0]).replace('"', '')
                 if len(websiteurl) == 0:
