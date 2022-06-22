@@ -93,8 +93,8 @@ if(isset($_GET["latitude"])){
   $contents = preg_replace("/BIRDWEATHER_ID=.*/", "BIRDWEATHER_ID=$birdweather_id", $contents);
   $contents = preg_replace("/APPRISE_NOTIFICATION_TITLE=.*/", "APPRISE_NOTIFICATION_TITLE=\"$apprise_notification_title\"", $contents);
   $contents = preg_replace("/APPRISE_NOTIFICATION_BODY=.*/", "APPRISE_NOTIFICATION_BODY='$apprise_notification_body'", $contents);
-  $contents = preg_replace("/APPRISE_NOTIFY_EACH_DETECTION=.*/", "APPRISE_NOTIFY_EACH_DETECTION='$apprise_notify_each_detection'", $contents);
-  $contents = preg_replace("/APPRISE_NOTIFY_NEW_SPECIES=.*/", "APPRISE_NOTIFY_NEW_SPECIES='$apprise_notify_new_species'", $contents);
+  $contents = preg_replace("/APPRISE_NOTIFY_EACH_DETECTION=.*/", "APPRISE_NOTIFY_EACH_DETECTION=$apprise_notify_each_detection", $contents);
+  $contents = preg_replace("/APPRISE_NOTIFY_NEW_SPECIES=.*/", "APPRISE_NOTIFY_NEW_SPECIES=$apprise_notify_new_species", $contents);
   $contents = preg_replace("/FLICKR_API_KEY=.*/", "FLICKR_API_KEY=$flickr_api_key", $contents);
   $contents = preg_replace("/DATABASE_LANG=.*/", "DATABASE_LANG=$language", $contents);
   $contents = preg_replace("/FLICKR_FILTER_EMAIL=.*/", "FLICKR_FILTER_EMAIL=$flickr_filter_email", $contents);
@@ -105,8 +105,8 @@ if(isset($_GET["latitude"])){
   $contents2 = preg_replace("/BIRDWEATHER_ID=.*/", "BIRDWEATHER_ID=$birdweather_id", $contents2);
   $contents2 = preg_replace("/APPRISE_NOTIFICATION_TITLE=.*/", "APPRISE_NOTIFICATION_TITLE=\"$apprise_notification_title\"", $contents2);
   $contents2 = preg_replace("/APPRISE_NOTIFICATION_BODY=.*/", "APPRISE_NOTIFICATION_BODY='$apprise_notification_body'", $contents2);
-  $contents2 = preg_replace("/APPRISE_NOTIFY_EACH_DETECTION=.*/", "APPRISE_NOTIFY_EACH_DETECTION='$apprise_notify_each_detection'", $contents2);
-  $contents2 = preg_replace("/APPRISE_NOTIFY_NEW_SPECIES=.*/", "APPRISE_NOTIFY_NEW_SPECIES='$apprise_notify_new_species'", $contents2);
+  $contents2 = preg_replace("/APPRISE_NOTIFY_EACH_DETECTION=.*/", "APPRISE_NOTIFY_EACH_DETECTION=$apprise_notify_each_detection", $contents2);
+  $contents2 = preg_replace("/APPRISE_NOTIFY_NEW_SPECIES=.*/", "APPRISE_NOTIFY_NEW_SPECIES=$apprise_notify_new_species", $contents2);
   $contents2 = preg_replace("/FLICKR_API_KEY=.*/", "FLICKR_API_KEY=$flickr_api_key", $contents2);
   $contents2 = preg_replace("/DATABASE_LANG=.*/", "DATABASE_LANG=$language", $contents2);
   $contents2 = preg_replace("/FLICKR_FILTER_EMAIL=.*/", "FLICKR_FILTER_EMAIL=$flickr_filter_email", $contents2);
@@ -202,10 +202,14 @@ https://discordapp.com/api/webhooks/{WebhookID}/{WebhookToken}
       <dd>Confidence Score</dd>
       <dt>$listenurl</dt>
       <dd>A link to the detection</dd>
+      <dt>$latitude</dt>
+      <dd>Latitude</dd>
+      <dt>$longitude</dt>
+      <dd>Longitude</dd>
       </dl>
       <p>Use the variables defined above to customize your notification title and body.</p>
       <label for="apprise_notification_title">Notification Title: </label>
-      <input name="apprise_notification_title" type="text" value="<?php print($config['APPRISE_NOTIFICATION_TITLE']);?>" /><br>
+      <input name="apprise_notification_title" type="text" value='<?php print($config['APPRISE_NOTIFICATION_TITLE']);?>' /><br>
       <label for="apprise_notification_body">Notification Body: </label>
       <input name="apprise_notification_body" type="text" value='<?php print($config['APPRISE_NOTIFICATION_BODY']);?>' /><br>
       <input type="checkbox" name="apprise_notify_new_species" <?php if($config['APPRISE_NOTIFY_NEW_SPECIES'] == 1 && filesize($home."/BirdNET-Pi/apprise.txt") != 0) { echo "checked"; };?> >

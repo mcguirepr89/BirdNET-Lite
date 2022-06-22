@@ -228,12 +228,13 @@ def analyzeAudioData(chunks, lat, lon, week, sensitivity, overlap,):
     return detections
 
 
-def sendAppriseNotifications(species, confidence, path):
+def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, week, sens, cutoff, overlap):
     if os.path.exists(userDir + '/BirdNET-Pi/apprise.txt') and os.path.getsize(userDir + '/BirdNET-Pi/apprise.txt') > 0:
         with open(userDir + '/BirdNET-Pi/scripts/thisrun.txt', 'r') as f:
             this_run = f.readlines()
             title = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_TITLE')]).split('=')[1]).split('\\')[0]).replace('"', '')
-            body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[0]).replace('"', '')
+            body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[1]).replace("'", '')
+            print("Notification Body " + body)
             
             try:
                 websiteurl = str(str(str([i for i in this_run if i.startswith('BIRDNETPI_URL')]).split('=')[1]).split('\\')[0]).replace('"', '')
@@ -252,8 +253,8 @@ def sendAppriseNotifications(species, confidence, path):
             apobj.add(config)
 
             apobj.notify(
-                body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl),
-                title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl),
+                body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl).replace("$latitude", lat).replace("$longitude", lon).replace("$date", date).replace("$time", time).replace("$week", week).replace("$cutoff", cutoff).replace("$overlap", overlap).replace("$sens", sens),
+                title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl)
             )
 
         if str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFY_NEW_SPECIES')]).split('=')[1]).split('\\')[0]) == "1":
@@ -436,8 +437,8 @@ def handle_client(conn, addr):
                                     try:
                                         con = sqlite3.connect(userDir + '/BirdNET-Pi/scripts/birds.db')
                                         cur = con.cursor()
-                                        cur.execute("INSERT INTO detections VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (Date, Time,
-                                                    Sci_Name, Com_Name, str(score), Lat, Lon, Cutoff, Week, Sens, Overlap, File_Name))
+                                        cur.execute("INSERT INTO detections VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (Date, Time,
+                                                    Sci_Name, Com_Name, str(score), Lat, Lon, Cutoff, Week, Sens, Overlap, File_Name, "UNVERIFIED"))
 
                                         con.commit()
                                         con.close()
@@ -446,7 +447,7 @@ def handle_client(conn, addr):
                                         print("Database busy")
                                         time.sleep(2)
                                         
-                                sendAppriseNotifications(str(entry[0]), str(entry[1]), File_Name)
+                                sendAppriseNotifications(species, str(score), File_Name, Lat, Lon, Date, Time, Week, Sens, Cutoff, Overlap)
 
                                 print(str(current_date) +
                                       ';' +
@@ -467,14 +468,8 @@ def handle_client(conn, addr):
                                       str(args.sensitivity) +
                                       ';' +
                                       str(args.overlap) +
-                                      Com_Name.replace(" ", "_") +
-                                      '-' +
-                                      str(score) +
-                                      '-' +
-                                      str(current_date) +
-                                      '-birdnet-' +
-                                      str(current_time) +
-                                      audiofmt +
+                                      ';' +
+                                      File_Name +
                                       '\n')
 
                                 if birdweather_id != "99999":
