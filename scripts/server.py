@@ -254,15 +254,15 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
 
             apobj.notify(
                 body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])
-                    .replace("$confidence", confidence).replace("$listenurl", listenurl)
-                    .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
-                    .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
-                    .replace("$overlap", overlap).replace("$sens", sens),
+                .replace("$confidence", confidence).replace("$listenurl", listenurl)
+                .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
+                .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
+                .replace("$overlap", overlap).replace("$sens", sens),
                 title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])
-                     .replace("$confidence", confidence).replace("$listenurl", listenurl)
-                     .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
-                     .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
-                     .replace("$overlap", overlap).replace("$sens", sens)
+                .replace("$confidence", confidence).replace("$listenurl", listenurl)
+                .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
+                .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
+                .replace("$overlap", overlap).replace("$sens", sens)
             )
 
         if str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFY_NEW_SPECIES')]).split('=')[1]).split('\\')[0]) == "1":
@@ -281,17 +281,17 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
                     apobj.add(config)
                     apobj.notify(
                         body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])
-                             .replace("$confidence", confidence).replace("$listenurl", listenurl)
-                             .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
-                             .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
-                             .replace("$overlap", overlap).replace("$sens", sens)
-                             + " (only seen "+str(int(numberDetections))+" times in last 7d)",
+                        .replace("$confidence", confidence).replace("$listenurl", listenurl)
+                        .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
+                        .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
+                        .replace("$overlap", overlap).replace("$sens", sens)
+                        + " (only seen "+str(int(numberDetections))+" times in last 7d)",
                         title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])
-                              .replace("$confidence", confidence).replace("$listenurl", listenurl)
-                              .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
-                              .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
-                              .replace("$overlap", overlap).replace("$sens", sens)
-                              + " (only seen "+str(int(numberDetections))+" times in last 7d)",
+                        .replace("$confidence", confidence).replace("$listenurl", listenurl)
+                        .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)
+                        .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)
+                        .replace("$overlap", overlap).replace("$sens", sens)
+                        + " (only seen "+str(int(numberDetections))+" times in last 7d)",
                     )
 
                 con.close()
