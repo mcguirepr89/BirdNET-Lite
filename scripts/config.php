@@ -202,10 +202,22 @@ https://discordapp.com/api/webhooks/{WebhookID}/{WebhookToken}
       <dd>Confidence Score</dd>
       <dt>$listenurl</dt>
       <dd>A link to the detection</dd>
+      <dt>$date</dt>
+      <dd>Date</dd>
+      <dt>$time</dt>
+      <dd>Time</dd>
+      <dt>$week</dt>
+      <dd>Week</dd>
       <dt>$latitude</dt>
       <dd>Latitude</dd>
       <dt>$longitude</dt>
       <dd>Longitude</dd>
+      <dt>$cutoff</dt>
+      <dd>Minimum Confidence set in "Advanced Settings"</dd>
+      <dt>$sens</dt>
+      <dd>Sigmoid Sensitivity set in "Advanced Settings"</dd>
+      <dt>$overlap</dt>
+      <dd>Overlap set in "Advanced Settings"</dd>
       </dl>
       <p>Use the variables defined above to customize your notification title and body.</p>
       <label for="apprise_notification_title">Notification Title: </label>
