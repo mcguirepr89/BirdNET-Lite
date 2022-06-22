@@ -253,8 +253,16 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
             apobj.add(config)
 
             apobj.notify(
-                body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl).replace("$latitude", lat).replace("$longitude", lon).replace("$date", date).replace("$time", time).replace("$week", week).replace("$cutoff", cutoff).replace("$overlap", overlap).replace("$sens", sens),
-                title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl).replace("$latitude", lat).replace("$longitude", lon).replace("$date", date).replace("$time", time).replace("$week", week).replace("$cutoff", cutoff).replace("$overlap", overlap).replace("$sens", sens)
+                body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])\
+                        .replace("$confidence", confidence).replace("$listenurl", listenurl)\
+                        .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)\
+                        .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)\
+                        .replace("$overlap", overlap).replace("$sens", sens),
+                title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])\
+                        .replace("$confidence", confidence).replace("$listenurl", listenurl)\
+                        .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)\
+                        .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)\
+                        .replace("$overlap", overlap).replace("$sens", sens)
             )
 
         if str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFY_NEW_SPECIES')]).split('=')[1]).split('\\')[0]) == "1":
@@ -272,8 +280,18 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
                     config.add(userDir + '/BirdNET-Pi/apprise.txt')
                     apobj.add(config)
                     apobj.notify(
-                        body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl).replace("$latitude", lat).replace("$longitude", lon).replace("$date", date).replace("$time", time).replace("$week", week).replace("$cutoff", cutoff).replace("$overlap", overlap).replace("$sens", sens) + " (only seen "+str(int(numberDetections))+" times in last 7d)",
-                        title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1]).replace("$confidence", confidence).replace("$listenurl", listenurl).replace("$latitude", lat).replace("$longitude", lon).replace("$date", date).replace("$time", time).replace("$week", week).replace("$cutoff", cutoff).replace("$overlap", overlap).replace("$sens", sens) + " (only seen "+str(int(numberDetections))+" times in last 7d)",
+                        body=body.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])\
+                                .replace("$confidence", confidence).replace("$listenurl", listenurl)\
+                                .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)\
+                                .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)\
+                                .replace("$overlap", overlap).replace("$sens", sens) \
+                                + " (only seen "+str(int(numberDetections))+" times in last 7d)",
+                        title=title.replace("$sciname", species.split("_")[0]).replace("$comname", species.split("_")[1])\
+                                .replace("$confidence", confidence).replace("$listenurl", listenurl)\
+                                .replace("$latitude", lat).replace("$longitude", lon).replace("$date", date)\
+                                .replace("$time", time).replace("$week", week).replace("$cutoff", cutoff)\
+                                .replace("$overlap", overlap).replace("$sens", sens) \
+                                + " (only seen "+str(int(numberDetections))+" times in last 7d)",
                     )
 
                 con.close()
@@ -446,7 +464,7 @@ def handle_client(conn, addr):
                                     except BaseException:
                                         print("Database busy")
                                         time.sleep(2)
-                                        
+
                                 sendAppriseNotifications(species, str(score), File_Name, Lat, Lon, Date, Time, Week, Sens, Cutoff, Overlap)
 
                                 print(str(current_date) +
