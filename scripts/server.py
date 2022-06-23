@@ -233,7 +233,7 @@ def sendAppriseNotifications(species, confidence, path, lat, lon, date, time, we
         with open(userDir + '/BirdNET-Pi/scripts/thisrun.txt', 'r') as f:
             this_run = f.readlines()
             title = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_TITLE')]).split('=')[1]).split('\\')[0]).replace('"', '')
-            body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[1]).replace("'", '')
+            body = str(str(str([i for i in this_run if i.startswith('APPRISE_NOTIFICATION_BODY')]).split('=')[1]).split('\\')[0]).replace("'", '')
             print("Notification Body " + body)
 
             try:
@@ -455,8 +455,8 @@ def handle_client(conn, addr):
                                     try:
                                         con = sqlite3.connect(userDir + '/BirdNET-Pi/scripts/birds.db')
                                         cur = con.cursor()
-                                        cur.execute("INSERT INTO detections VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (Date, Time,
-                                                    Sci_Name, Com_Name, str(score), Lat, Lon, Cutoff, Week, Sens, Overlap, File_Name, "UNVERIFIED"))
+                                        cur.execute("INSERT INTO detections VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (Date, Time,
+                                                    Sci_Name, Com_Name, str(score), Lat, Lon, Cutoff, Week, Sens, Overlap, File_Name))
 
                                         con.commit()
                                         con.close()
