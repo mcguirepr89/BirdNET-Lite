@@ -398,6 +398,9 @@ def handle_client(conn, addr):
                                         con.commit()
                                         con.close()
                                         break
+                                    except sqlite3.Error as er:
+                                        print('SQLite error: %s' % (' '.join(er.args)))
+                                        print("Exception class is: ", er.__class__)
                                     except BaseException:
                                         print("Database busy")
                                         time.sleep(2)
