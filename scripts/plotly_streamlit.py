@@ -38,14 +38,12 @@ st.markdown("""
         """, unsafe_allow_html=True)
 
 
-@st.cache(hash_funcs={Connection: id})
-# @st.cache(allow_output_mutation=True)
 def get_connection(path: str):
     return sqlite3.connect(path, check_same_thread=False)
 
-
-def get_data(conn: Connection):
-    df1 = pd.read_sql("SELECT * FROM detections", con=conn)
+@st.cache_data()
+def get_data(_conn: Connection):
+    df1 = pd.read_sql("SELECT * FROM detections", con=_conn)
     return df1
 
 
@@ -89,7 +87,7 @@ else:
 # end_date = datetime(2022 ,5 ,17).date()
 
 
-@st.cache()
+#@st.cache_data()
 def date_filter(df, start_date, end_date):
     filt = (df2.index >= pd.Timestamp(start_date)) & (df2.index <= pd.Timestamp(end_date + timedelta(days=1)))
     df = df[filt]
@@ -132,7 +130,7 @@ else:
     resample_time = resample_times[resample_sel]
 
 
-@st.cache()
+@st.cache_data()
 def time_resample(df, resample_time):
     if resample_time == 'Raw':
         df_resample = df['Com_Name']
