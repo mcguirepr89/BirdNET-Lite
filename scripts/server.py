@@ -21,6 +21,9 @@ from utils.parse_settings import config_to_settings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
+#Limit the number of connections to birdweather:
+lock_birdweather = threading.Lock()
+
 try:
     import tflite_runtime.interpreter as tflite
 except BaseException:
@@ -297,6 +300,7 @@ def analyzeAudioData(chunks, lat, lon, week, sensitivity, overlap,):
         for x in range(len(p)):
             if "Human" in p[x][0]:
                 HUMAN_DETECTED = True
+                break
 
         # Save result and timestamp
         pred_end = pred_start + 3.0
@@ -327,6 +331,15 @@ def writeResultsToFile(detections, min_conf, path):
                     rcnt += 1
     print('DONE! WROTE', rcnt, 'RESULTS.')
     return
+
+def post_detections(detection_url, json):
+    with lock_birdweather:
+        try:
+            response = requests.post(detection_url, json=json, timeout=15)
+            print("Detection POST Response Status - ", response.status_code)
+        except Exception as e:
+            print("Cannot POST right now")
+            print(e)
 
 
 def handle_client(conn, addr):
@@ -549,7 +562,6 @@ def handle_client(conn, addr):
 
                                 if birdweather_id != "99999":
                                     try:
-
                                         if soundscape_uploaded is False:
                                             # POST soundscape to server
                                             soundscape_url = 'https://app.birdweather.com/api/v1/stations/' + \
@@ -561,13 +573,18 @@ def handle_client(conn, addr):
                                             with open(args.i, 'rb') as f:
                                                 wav_data = f.read()
                                             gzip_wav_data = gzip.compress(wav_data)
+
+                                            # Make sure no other connections are open
+                                            lock_birdweather.acquire()
+
                                             response = requests.post(url=soundscape_url, data=gzip_wav_data, headers={'Content-Type': 'application/octet-stream',
-                                                                                                                      'Content-Encoding': 'gzip'})
+                                                                                                                      'Content-Encoding': 'gzip'}, timeout=10)
+                                            lock_birdweather.release()
+
                                             print("Soundscape POST Response Status - ", response.status_code)
                                             sdata = response.json()
                                             soundscape_id = sdata['soundscape']['id']
                                             soundscape_uploaded = True
-
                                         # POST detection to server
                                         detection_url = "https://app.birdweather.com/api/v1/stations/" + birdweather_id + "/detections"
                                         start_time = d.split(';')[0]
@@ -595,10 +612,12 @@ def handle_client(conn, addr):
                                         post_json = post_begin + post_timestamp + post_lat + post_lon + post_soundscape_id + post_soundscape_start_time + \
                                             post_soundscape_end_time + post_commonName + post_scientificName + post_algorithm + post_confidence + post_end
                                         print(post_json)
-                                        response = requests.post(detection_url, json=json.loads(post_json))
-                                        print("Detection POST Response Status - ", response.status_code)
-                                    except BaseException:
-                                        print("Cannot POST right now")
+                                        request_thread = threading.Thread(target = post_detections, args=[detection_url, json.loads(post_json)])
+                                        request_thread.start()
+                                    except Exception as e:
+                                        print("Could not post soundscape to birdweather", e)
+
+
                 conn.send(myReturn.encode(FORMAT))
 
                 # time.sleep(3)
