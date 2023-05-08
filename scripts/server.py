@@ -575,11 +575,9 @@ def handle_client(conn, addr):
                                             gzip_wav_data = gzip.compress(wav_data)
 
                                             # Make sure no other connections are open
-                                            lock_birdweather.acquire()
-
-                                            response = requests.post(url=soundscape_url, data=gzip_wav_data, headers={'Content-Type': 'application/octet-stream',
+                                            with(lock_birdweather):
+                                                response = requests.post(url=soundscape_url, data=gzip_wav_data, headers={'Content-Type': 'application/octet-stream',
                                                                                                                       'Content-Encoding': 'gzip'}, timeout=10)
-                                            lock_birdweather.release()
 
                                             print("Soundscape POST Response Status - ", response.status_code)
                                             sdata = response.json()
@@ -611,7 +609,7 @@ def handle_client(conn, addr):
 
                                         post_json = post_begin + post_timestamp + post_lat + post_lon + post_soundscape_id + post_soundscape_start_time + \
                                             post_soundscape_end_time + post_commonName + post_scientificName + post_algorithm + post_confidence + post_end
-                                        print(post_json)
+                                        #print(post_json)
                                         request_thread = threading.Thread(target = post_detections, args=[detection_url, json.loads(post_json)])
                                         request_thread.start()
                                     except Exception as e:
