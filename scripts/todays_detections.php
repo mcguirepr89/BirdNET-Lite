@@ -230,6 +230,7 @@ if(isset($_GET['ajax_detections']) && $_GET['ajax_detections'] == "true"  ) {
   $comname = preg_replace('/ /', '_', $todaytable['Com_Name']);
   $comname = preg_replace('/\'/', '_', $comname);
   $filename = "/By_Date/".date('Y-m-d')."/".$comname."/".$todaytable['File_Name'];
+  $filename_formatted = $todaytable['Date']."/".$comname."/".$todaytable['File_Name'];
   $sciname = preg_replace('/ /', '_', $todaytable['Sci_Name']);
   $args = "&license=2%2C3%2C4%2C5%2C6%2C9&orientation=square,portrait";
   $comnameprefix = "%20bird";
@@ -308,7 +309,9 @@ if(isset($_GET['ajax_detections']) && $_GET['ajax_detections'] == "true"  ) {
   ?>
         <?php if(isset($_GET['display_limit']) && is_numeric($_GET['display_limit'])){ ?>
           <tr class="relative" id="<?php echo $iterations; ?>">
-          <td class="relative"><a target="_blank" href="index.php?filename=<?php echo $todaytable['File_Name']; ?>"><img class="copyimage" title="Open in new tab" width=25 src="images/copy.png"></a>
+          <td class="relative">
+            <img style='cursor:pointer;right:45px' src='images/delete.svg' onclick='deleteDetection("<?php echo $filename_formatted; ?>")' class="copyimage" width=25 title='Delete Detection'>
+            <a target="_blank" href="index.php?filename=<?php echo $todaytable['File_Name']; ?>"><img class="copyimage" title="Open in new tab" width=25 src="images/copy.png"></a>
         
             
           <div class="centered_image_container">
@@ -419,8 +422,8 @@ die();
 </style>
 </head>
 <div class="viewdb">
-  <dialog style="margin-top: 5px;max-height: 100vh;
-  overflow-y: auto;" id="attribution-dialog">
+  <dialog style="margin-top: 5px;max-height: 95vh;
+  overflow-y: auto;overscroll-behavior:contain" id="attribution-dialog">
     <h1 id="modalHeading"></h1>
     <p id="modalText"></p>
     <button style="font-weight:bold;color:blue" onclick="hideDialog()">Close</button>
@@ -431,6 +434,25 @@ die();
   <script src="static/chartjs-plugin-trendline.min.js"></script>
   
   <script>
+    function deleteDetection(filename,copylink=false) {
+    if (confirm("Are you sure you want to delete this detection from the database?") == true) {
+      const xhttp = new XMLHttpRequest();
+      xhttp.onload = function() {
+        if(this.responseText == "OK"){
+          if(copylink == true) {
+            window.top.close();
+          } else {
+            location.reload();
+          }
+        } else {
+          alert("Database busy.")
+        }
+      }
+      xhttp.open("GET", "play.php?deletefile="+filename, true);
+      xhttp.send();
+    }
+  }
+
     var last_photo_link;
   var dialog = document.querySelector('dialog');
   dialogPolyfill.registerDialog(dialog);
@@ -461,9 +483,9 @@ die();
   function setModalText(iter, title, text, authorlink, photolink, licenseurl) {
     document.getElementById('modalHeading').innerHTML = "Photo: \""+decodeURIComponent(title.replaceAll("+"," "))+"\" Attribution";
     <?php if($kiosk == false) { ?>
-      document.getElementById('modalText').innerHTML = "<div><img style='border-radius:5px;max-height: calc(100vh - 15rem);display: block;margin: 0 auto;' src='"+photolink+"'></div><br><div>Image link: <a target='_blank' href="+text+">"+text+"</a><br>Author link: <a target='_blank' href="+authorlink+">"+authorlink+"</a><br>License URL: <a href="+licenseurl+" target='_blank'>"+licenseurl+"</a></div>";
+      document.getElementById('modalText').innerHTML = "<div><img style='border-radius:5px;max-height: calc(100vh - 15rem);display: block;margin: 0 auto;' src='"+photolink+"'></div><br><div style='white-space:nowrap'>Image link: <a target='_blank' href="+text+">"+text+"</a><br>Author link: <a target='_blank' href="+authorlink+">"+authorlink+"</a><br>License URL: <a href="+licenseurl+" target='_blank'>"+licenseurl+"</a></div>";
     <?php } else { ?>
-      document.getElementById('modalText').innerHTML = "<div><img style='border-radius:5px;max-height: calc(100vh - 15rem);display: block;margin: 0 auto;' src='"+photolink+"'></div><br><div>Image link: <a target='_blank'>"+text+"</a><br>Author link: <a target='_blank'>"+authorlink+"</a><br>License URL: <a target='_blank'>"+licenseurl+"</a></div>";
+      document.getElementById('modalText').innerHTML = "<div><img style='border-radius:5px;max-height: calc(100vh - 15rem);display: block;margin: 0 auto;' src='"+photolink+"'></div><br><div style='white-space:nowrap'>Image link: <a target='_blank'>"+text+"</a><br>Author link: <a target='_blank'>"+authorlink+"</a><br>License URL: <a target='_blank'>"+licenseurl+"</a></div>";
     <?php } ?>
     last_photo_link = text;
     showDialog();
@@ -570,7 +592,9 @@ function searchDetections(searchvalue) {
 function loadDetections(detections_limit, element=undefined) {
   const xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
-    document.getElementsByClassName("legacyview")[0].style.display="unset";
+    <?php if($kiosk == false) { ?>
+      document.getElementsByClassName("legacyview")[0].style.display="unset";
+    <?php } ?>
     if(typeof element !== "undefined")
     {
      element.remove();

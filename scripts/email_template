@@ -4,7 +4,9 @@ Below is the information I would like to use to request a BirdWeather ID
 %0A%0A
 Latitude={{ LATITUDE }}%0A
 Longitude={{ LONGITUDE }}%0A
-Location= [ Create a location name ]%0A
+City= [ City ]%0A
+State= [ State ]%0A
+Country= [ Country ]%0A
 %0A%0A
 Thank you so much!%0A
 [ Your Name Here ]

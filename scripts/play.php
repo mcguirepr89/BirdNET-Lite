@@ -231,7 +231,7 @@ function toggleLock(filename, type, elem) {
         elem.setAttribute("onclick", elem.getAttribute("onclick").replace("add","del"));
       } else {
         elem.setAttribute("src","images/unlock.svg");
-        elem.setAttribute("title", "This file is not excluded from being purged.");
+        elem.setAttribute("title", "This file will be deleted when disk space needs to be freed.");
         elem.setAttribute("onclick", elem.getAttribute("onclick").replace("del","add"));
       }
     }
@@ -489,7 +489,7 @@ echo "<table>
     if($config["FULL_DISK"] == "purge") {
       if(!in_array($filename_formatted, $disk_check_exclude_arr)) {
         $imageicon = "images/unlock.svg";
-        $title = "This file is not excluded from being purged.";
+        $title = "This file will be deleted when disk space needs to be freed (>95% usage).";
         $type = "add";
       } else {
         $imageicon = "images/lock.svg";
@@ -564,7 +564,7 @@ echo "<table>
         if($config["FULL_DISK"] == "purge") {
           if(!in_array($filename_formatted, $disk_check_exclude_arr)) {
             $imageicon = "images/unlock.svg";
-            $title = "This file is not excluded from being purged.";
+            $title = "This file will be deleted when disk space needs to be freed (>95% usage).";
             $type = "add";
           } else {
             $imageicon = "images/lock.svg";

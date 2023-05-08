@@ -44,4 +44,12 @@ function update() {
   <form action="" method="GET">
     <button type="submit" name="submit" value="sudo clear_all_data.sh" onclick="return confirm('Clear ALL Data? Note that this cannot be undone and will take up to 90 seconds.')">Clear ALL data</button>
   </form> 
+<?php
+  $cmd="cd ".$home."/BirdNET-Pi && sudo -u ".$user." git rev-list --max-count=1 HEAD";
+  $curr_hash = shell_exec($cmd);
+?>
+  <p style="font-size:11px;text-align:center"></br></br>Running version: </p>
+  <a href="https://github.com/mcguirepr89/BirdNET-Pi/commit/<?php echo $curr_hash; ?>" target="_blank">
+    <p style="font-size:11px;text-align:center;box-sizing: border-box"><?php echo $curr_hash; ?></p>
+  </a>
 </div>

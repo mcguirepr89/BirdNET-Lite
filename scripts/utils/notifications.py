@@ -51,6 +51,11 @@ def sendAppriseNotifications(species, confidence, path, date, time, week, latitu
         if APPRISE_ONLY_NOTIFY_SPECIES_NAMES is not None and APPRISE_ONLY_NOTIFY_SPECIES_NAMES.strip() != "":
             if any(bird.lower().replace(" ", "") in comName.lower().replace(" ", "") for bird in APPRISE_ONLY_NOTIFY_SPECIES_NAMES.split(",")):
                 return
+                
+        APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2 = settings_dict.get('APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2')
+        if APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2 is not None and APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2.strip() != "":
+            if not any(bird.lower().replace(" ", "") in comName.lower().replace(" ", "") for bird in APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2.split(",")):
+                return
 
         APPRISE_MINIMUM_SECONDS_BETWEEN_NOTIFICATIONS_PER_SPECIES = settings_dict.get('APPRISE_MINIMUM_SECONDS_BETWEEN_NOTIFICATIONS_PER_SPECIES')
         if APPRISE_MINIMUM_SECONDS_BETWEEN_NOTIFICATIONS_PER_SPECIES != "0":
@@ -170,7 +175,7 @@ def sendAppriseNotifications(species, confidence, path, date, time, week, latitu
             except sqlite3.Error as e:
                 print(e)
                 print("Database busy")
-                time.sleep(2)
+                timeim.sleep(2)
 
         if settings_dict.get('APPRISE_NOTIFY_NEW_SPECIES') == "1":
             try:
@@ -217,7 +222,7 @@ def sendAppriseNotifications(species, confidence, path, date, time, week, latitu
                 con.close()
             except sqlite3.Error:
                 print("Database busy")
-                time.sleep(2)
+                timeim.sleep(2)
 
 
 if __name__ == "__main__":

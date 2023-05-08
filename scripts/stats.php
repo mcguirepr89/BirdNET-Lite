@@ -142,7 +142,8 @@ tr:first-child td {
 </style>
 
 </div>
-<dialog id="attribution-dialog">
+<dialog style="margin-top: 5px;max-height: 95vh;
+  overflow-y: auto;overscroll-behavior:contain" id="attribution-dialog">
   <h1 id="modalHeading"></h1>
   <p id="modalText"></p>
   <button onclick="hideDialog()">Close</button>
@@ -162,7 +163,7 @@ function hideDialog() {
 
 function setModalText(iter, title, text, authorlink) {
   document.getElementById('modalHeading').innerHTML = "Photo "+iter+": \""+title+"\" Attribution";
-  document.getElementById('modalText').innerHTML = "Image link: <a target='_blank' href="+text+">"+text+"</a><br>Author link: <a target='_blank' href="+authorlink+">"+authorlink+"</a>";
+  document.getElementById('modalText').innerHTML = "<div style='white-space:nowrap'>Image link: <a target='_blank' href="+text+">"+text+"</a><br>Author link: <a target='_blank' href="+authorlink+">"+authorlink+"</a></div>";
   showDialog();
 }
 </script>  

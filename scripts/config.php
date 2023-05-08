@@ -54,6 +54,7 @@ if(isset($_GET["latitude"])){
   $model = $_GET["model"];
   $sf_thresh = $_GET["sf_thresh"];
   $only_notify_species_names = $_GET['only_notify_species_names'];
+  $only_notify_species_names_2 = $_GET['only_notify_species_names_2'];
 
   if(isset($_GET['apprise_notify_each_detection'])) {
     $apprise_notify_each_detection = 1;
@@ -120,9 +121,9 @@ if(isset($_GET["latitude"])){
       // Archive old language file
       syslog_shell_exec("cp -f $home/BirdNET-Pi/model/labels.txt $home/BirdNET-Pi/model/labels.txt.old", $user);
 
-      if($model == "BirdNET_GLOBAL_3K_V2.2_Model_FP16"){
+      if($model == "BirdNET_GLOBAL_3K_V2.3_Model_FP16"){
       // Install new language label file
-        syslog_shell_exec("sudo chmod +x $home/BirdNET-Pi/scripts/install_language_label_nm.sh && $home/BirdNET-Pi/scripts/install_language_label_nm.sh -l $language", $user);
+        syslog_shell_exec("chmod +x $home/BirdNET-Pi/scripts/install_language_label_nm.sh && $home/BirdNET-Pi/scripts/install_language_label_nm.sh -l $language", $user);
       } else {
         syslog_shell_exec("$home/BirdNET-Pi/scripts/install_language_label.sh -l $language", $user);
       }
@@ -150,6 +151,7 @@ if(isset($_GET["latitude"])){
   $contents = preg_replace("/MODEL=.*/", "MODEL=$model", $contents);
   $contents = preg_replace("/SF_THRESH=.*/", "SF_THRESH=$sf_thresh", $contents);
   $contents = preg_replace("/APPRISE_ONLY_NOTIFY_SPECIES_NAMES=.*/", "APPRISE_ONLY_NOTIFY_SPECIES_NAMES=\"$only_notify_species_names\"", $contents);
+  $contents = preg_replace("/APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2=.*/", "APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2=\"$only_notify_species_names_2\"", $contents);
 
   $contents2 = file_get_contents("./scripts/thisrun.txt");
   $contents2 = preg_replace("/SITE_NAME=.*/", "SITE_NAME=\"$site_name\"", $contents2);
@@ -169,6 +171,7 @@ if(isset($_GET["latitude"])){
   $contents2 = preg_replace("/MODEL=.*/", "MODEL=$model", $contents2);
   $contents2 = preg_replace("/SF_THRESH=.*/", "SF_THRESH=$sf_thresh", $contents2);
   $contents2 = preg_replace("/APPRISE_ONLY_NOTIFY_SPECIES_NAMES=.*/", "APPRISE_ONLY_NOTIFY_SPECIES_NAMES=\"$only_notify_species_names\"", $contents2);
+  $contents2 = preg_replace("/APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2=.*/", "APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2=\"$only_notify_species_names_2\"", $contents2);
 
 
 
@@ -325,7 +328,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 <script>
   document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('modelsel').addEventListener('change', function() {
-    if(this.value == "BirdNET_GLOBAL_3K_V2.2_Model_FP16"){ 
+    if(this.value == "BirdNET_GLOBAL_3K_V2.3_Model_FP16"){ 
       document.getElementById("soft").style.display="unset";
     } else {
       document.getElementById("soft").style.display="none";
@@ -357,7 +360,7 @@ function sendTestNotification(e) {
       <label for="model">Select a Model: </label>
       <select id="modelsel" name="model">
       <?php
-      $models = array("BirdNET_6K_GLOBAL_MODEL", "BirdNET_GLOBAL_3K_V2.2_Model_FP16");
+      $models = array("BirdNET_6K_GLOBAL_MODEL", "BirdNET_GLOBAL_3K_V2.3_Model_FP16");
       foreach($models as $modelName){
           $isSelected = "";
           if($config['MODEL'] == $modelName){
@@ -473,7 +476,7 @@ function runProcess() {
       <dt>BirdNET_6K_GLOBAL_MODEL (2020)</dt><br>
       <dd id="ddnewline">This is the BirdNET-Lite model, with bird sound recognition for more than 6,000 species worldwide. This is the default option and will generally work very for people in most of the world.</dd>
     <br>
-      <dt>BirdNET_GLOBAL_3K_V2.2_Model_FP16 (2022)</dt><br>
+      <dt>BirdNET_GLOBAL_3K_V2.3_Model_FP16 (2023)</dt><br>
       <dd id="ddnewline">This is the BirdNET-Analyzer model, a newer work-in-progress project with aims to improve on the BirdNET-Lite model. Currently it only supports about 3,500 species worldwide, meaning for some regions (North America, Europe, Australia) it will usually outperform the BirdNET-Lite model, but for other regions it will be worse.</dd><br>
       <dt>[ In-depth technical write-up on the models <a target="_blank" href="https://github.com/mcguirepr89/BirdNET-Pi/wiki/BirdNET-Pi:-some-theory-on-classification-&-some-practical-hints">here</a> ]</dt>
       </dl>
@@ -550,7 +553,9 @@ https://discordapp.com/api/webhooks/{WebhookID}/{WebhookToken}
       <label for="minimum_time_limit">Minimum time between notifications of the same species (sec):</label>
       <input type="number" id="minimum_time_limit" name="minimum_time_limit" value="<?php echo $config['APPRISE_MINIMUM_SECONDS_BETWEEN_NOTIFICATIONS_PER_SPECIES'];?>" min="0"><br>
       <label for="only_notify_species_names">Exclude these species (comma separated common names):</label>
-      <input type="text" id="only_notify_species_names" placeholder="Northern Cardinal,American Crow,Carolina Chickadee" name="only_notify_species_names" value="<?php echo $config['APPRISE_ONLY_NOTIFY_SPECIES_NAMES'];?>" size=96><br>
+      <input type="text" id="only_notify_species_names" placeholder="Mourning Dove,American Crow" name="only_notify_species_names" value="<?php echo $config['APPRISE_ONLY_NOTIFY_SPECIES_NAMES'];?>" size=96><br>
+      <label for="only_notify_species_names_2">ONLY notify for these species (comma separated common names):</label>
+      <input type="text" id="only_notify_species_names_2" placeholder="Northern Cardinal,Carolina Chickadee,Eastern Bluebird" name="only_notify_species_names_2" value="<?php echo $config['APPRISE_ONLY_NOTIFY_SPECIES_NAMES_2'];?>" size=96><br>
 
       <br>
 

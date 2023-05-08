@@ -31,7 +31,7 @@ def loadMetaModel():
     global CLASSES
 
     # Load TFLite model and allocate tensors.
-    M_INTERPRETER = tflite.Interpreter(model_path=userDir + '/BirdNET-Pi/model/BirdNET_GLOBAL_3K_V2.2_MData_Model_FP16.tflite')
+    M_INTERPRETER = tflite.Interpreter(model_path=userDir + '/BirdNET-Pi/model/BirdNET_GLOBAL_3K_V2.3_MData_Model_FP16.tflite')
     M_INTERPRETER.allocate_tensors()
 
     # Get input and output tensors.

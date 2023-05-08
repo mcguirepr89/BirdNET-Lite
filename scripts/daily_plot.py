@@ -81,24 +81,25 @@ plot.set(xlabel="Detections")
 
 
 # Generate crosstab matrix for heatmap plot
-
 heat = pd.crosstab(df_plt_top10_today['Com_Name'], df_plt_top10_today['Hour of Day'])
+
 # Order heatmap Birds by frequency of occurrance
 heat.index = pd.CategoricalIndex(heat.index, categories=freq_order)
 heat.sort_index(level=0, inplace=True)
-
 
 hours_in_day = pd.Series(data=range(0, 24))
 heat_frame = pd.DataFrame(data=0, index=heat.index, columns=hours_in_day)
 heat = (heat + heat_frame).fillna(0)
 
-# Generatie heatmap plot
+# Get current hour
+current_hour = now.hour
+
+# Generate heatmap plot
 plot = sns.heatmap(
     heat,
     norm=LogNorm(),
     annot=True,
-    annot_kws={
-        "fontsize": 7},
+    annot_kws={"fontsize": 7},
     fmt="g",
     cmap=pal,
     square=False,
@@ -106,8 +107,17 @@ plot = sns.heatmap(
     linewidths=0.5,
     linecolor="Grey",
     ax=axs[1],
-    yticklabels=False)
+    yticklabels=False
+)
+
+# Set color and weight of tick label for current hour
+for label in plot.get_xticklabels():
+    if int(label.get_text()) == current_hour:
+        label.set_color('yellow')
+
 plot.set_xticklabels(plot.get_xticklabels(), rotation=0, size=7)
+
+
 
 # Set heatmap border
 for _, spine in plot.spines.items():
