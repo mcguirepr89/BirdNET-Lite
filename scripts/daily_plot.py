@@ -1,5 +1,4 @@
 import sqlite3
-import os
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -8,9 +7,9 @@ from datetime import datetime
 import textwrap
 import matplotlib.font_manager as font_manager
 from matplotlib import rcParams
+import utils.common as common
 
-userDir = os.path.expanduser('~')
-conn = sqlite3.connect(userDir + '/BirdNET-Pi/scripts/birds.db')
+conn = sqlite3.connect(common.filepath_resolver.get_file_path('birds.db'))
 df = pd.read_sql_query("SELECT * from detections", conn)
 cursor = conn.cursor()
 cursor.execute('SELECT * FROM detections WHERE Date = DATE(\'now\', \'localtime\')')
@@ -31,7 +30,7 @@ df['Hour of Day'] = [r.hour for r in df.Time]
 df_plt = df  # Default to use the whole Dbase
 
 # Add every font at the specified location
-font_dir = [userDir + '/BirdNET-Pi/homepage/static']
+font_dir = [common.filepath_resolver.get_directory('web_fonts')]
 for font in font_manager.findSystemFonts(font_dir):
     font_manager.fontManager.addfont(font)
 
@@ -130,8 +129,7 @@ f.subplots_adjust(top=0.9)
 plt.suptitle("Top 10 Last Updated: " + str(now.strftime("%Y-%m-%d %H:%M")))
 
 # Save combined plot
-userDir = os.path.expanduser('~')
-savename = userDir + '/BirdSongs/Extracted/Charts/Combo-' + str(now.strftime("%Y-%m-%d")) + '.png'
+savename = common.filepath_resolver.get_directory('extracted_charts') + '/Combo-' + str(now.strftime("%Y-%m-%d")) + '.png'
 plt.savefig(savename)
 plt.show()
 plt.close()
@@ -210,7 +208,7 @@ f.subplots_adjust(top=0.9)
 plt.suptitle("Bottom 10 Last Updated: " + str(now.strftime("%Y-%m-%d %H:%M")))
 
 # Save combined plot
-savename = userDir + '/BirdSongs/Extracted/Charts/Combo2-' + str(now.strftime("%Y-%m-%d")) + '.png'
+savename = common.filepath_resolver.get_directory('extracted_charts') + '/Combo2-' + str(now.strftime("%Y-%m-%d")) + '.png'
 plt.savefig(savename)
 plt.show()
 plt.close()
