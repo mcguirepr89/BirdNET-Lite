@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+LOG_DIR="$(getDirectory 'birdnet_pi')/logs"
+my_dir="$(getDirectory 'scripts')"
+BIRDNET_PI_DIR="$(getDirectory 'birdnet_pi')"
+RECORDING_DIR="$(getDirectory 'recs_dir')"
+
 # A comprehensive log dumper
 # set -x # Uncomment to debug
 source /etc/birdnet/birdnet.conf &> /dev/null
-LOG_DIR="${HOME}/BirdNET-Pi/logs"
-my_dir=$HOME/BirdNET-Pi/scripts
 services=$(awk '/service/ && /systemctl/ && !/php/ {print $3}' ${my_dir}/install_services.sh | sort)
 
 # Create logs directory
@@ -18,7 +24,7 @@ for i in "${services[@]}";do
 done
 
 # Create password-removed birdnet.conf
-sed -e '/PWD=/d' ${HOME}/BirdNET-Pi/birdnet.conf > ${LOG_DIR}/birdnet.conf 
+sed -e '/PWD=/d' "$(getFilePath 'birdnet.conf')" > ${LOG_DIR}/birdnet.conf
 
 # Create password-removed Caddyfile
 if [ -f /etc/caddy/Caddyfile ];then
@@ -34,7 +40,7 @@ echo "SOUND_CARD=${SOUND_CARD}" > ${LOG_DIR}/soundcard
 script -c "arecord -D ${SOUND_CARD} --dump-hw-params" -a ${LOG_DIR}/soundcard &> /dev/null
 
 # Get system info
-CALLS=("df -h" "free -h" "ifconfig" "find ${RECS_DIR}")
+CALLS=("df -h" "free -h" "ifconfig" "find ${RECORDING_DIR}")
 
 for i in "${CALLS[@]}";do
   ${i} >> ${LOG_DIR}/sysinfo
@@ -46,6 +52,6 @@ for i in "${CALLS[@]}";do
 done
 
 # TAR the logs into a ball
-tar --remove-files -cvpzf ${HOME}/BirdNET-Pi/logs.tar.gz ${LOG_DIR} &> /dev/null
+tar --remove-files -cvpzf ${BIRDNET_PI_DIR}/logs.tar.gz ${LOG_DIR} &> /dev/null
 # Finished
-echo "Your compressed logs are located at ${HOME}/BirdNET-Pi/logs.tar.gz"
+echo "Your compressed logs are located at ${BIRDNET_PI_DIR}/logs.tar.gz"

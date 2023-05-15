@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+HOME_DIR="$(getDirectory 'home')"
+EXTRACTED_DIR="$(getDirectory 'extracted')"
+PROCESSED_DIR="$(getDirectory 'processed')"
+RECORDINGS_DIR="$(getDirectory 'recs_dir')"
+
 # Exit when any command fails
 #set -x
 set -e
@@ -14,7 +22,7 @@ source /etc/birdnet/birdnet.conf
 # Set Variables
 TMPFILE=$(mktemp)
 #SCAN_DIRS are all directories marked "Analyzed"
-SCAN_DIRS=($(find $RECS_DIR -type d -name '*Analyzed' 2>/dev/null | sort ))
+SCAN_DIRS=($(find $RECORDINGS_DIR -type d -name '*Analyzed' 2>/dev/null | sort ))
 
 for h in "${SCAN_DIRS[@]}";do
   # The TMPFILE is created from each .csv file BirdNET creates
@@ -60,11 +68,11 @@ for h in "${SCAN_DIRS[@]}";do
     if [[ $locale_decimal == "." ]]; then
       CONFIDENCE_SCORE="$(printf %.0f "$(echo "scale=2; ${CONFIDENCE} * 100" | bc)")"
     else
-      CONFIDENCE_SCORE="$(printf %.0f "$(echo "scale=2; "${CONFIDENCE}" * 100" | bc | tr '.' ',')")"
+      CONFIDENCE_SCORE="$(printf %.0f "$(echo "scale=2; ${CONFIDENCE} * 100" | bc | tr '.' ',')")"
     fi
     NEWFILE="${COMMON_NAME// /_}-${CONFIDENCE_SCORE}-${OLDFILE//.wav/.${AUDIOFMT}}"
     echo "NEWFILE=$NEWFILE"
-    NEWSPECIES_BYDATE="${EXTRACTED}/By_Date/${DATE}/${COMMON_NAME// /_}"
+    NEWSPECIES_BYDATE="${EXTRACTED_DIR}/By_Date/${DATE}/${COMMON_NAME// /_}"
 
     # If the extracted file already exists, move on
     if [[ -f "${NEWSPECIES_BYDATE}/${NEWFILE}" ]];then
@@ -124,14 +132,14 @@ for h in "${SCAN_DIRS[@]}";do
       # If it is, add "-r" as an argument to the SOX command
       sox -V1 "${NEWSPECIES_BYDATE}/${NEWFILE}" -n remix 1 rate 24k spectrogram \
         -t "${COMMON_NAME}" \
-        -c "${NEWSPECIES_BYDATE//$HOME\/}/${NEWFILE}" \
+        -c "${NEWSPECIES_BYDATE//$HOME_DIR\/}/${NEWFILE}" \
         -o "${NEWSPECIES_BYDATE}/${NEWFILE}.png" \
         -r
     else
       # If it's not, run the SOX command without the "-r" argument
       sox -V1 "${NEWSPECIES_BYDATE}/${NEWFILE}" -n remix 1 rate 24k spectrogram \
         -t "$(echo "${COMMON_NAME}" | iconv -f utf8 -t ascii//TRANSLIT)" \
-        -c "${NEWSPECIES_BYDATE//$HOME\/}/${NEWFILE}" \
+        -c "${NEWSPECIES_BYDATE//$HOME_DIR\/}/${NEWFILE}" \
         -o "${NEWSPECIES_BYDATE}/${NEWFILE}.png"
     fi
     
@@ -143,9 +151,9 @@ for h in "${SCAN_DIRS[@]}";do
 
   # Rename files that have been processed so that they are not processed on the
   # next extraction.
-  [[ -d "${PROCESSED}" ]] || mkdir "${PROCESSED}"
+  [[ -d "${PROCESSED_DIR}" ]] || mkdir "${PROCESSED_DIR}"
   #echo "Moving processed files to ${PROCESSED}"
-  mv ${h}/* ${PROCESSED} &> /dev/null || true
+  mv ${h}/* "${PROCESSED_DIR}" &> /dev/null || true
 
   # Removes old directories
   if echo "${h}" | grep $(date --date="-2 day" "+%A") &> /dev/null;then
@@ -158,6 +166,6 @@ done
 #echo "Linking Processed files to "${EXTRACTED}/Processed" web directory"
 # After all audio extractions have taken place, a directory is created to house
 # the original WAVE and .txt files used for this extraction processs.
-if [[ ! -L ${EXTRACTED}/Processed ]] || [[ ! -e ${EXTRACTED}/Processed ]];then
-  ln -sf ${PROCESSED} ${EXTRACTED}/Processed
+if [[ ! -L ${EXTRACTED_DIR}/Processed ]] || [[ ! -e ${EXTRACTED_DIR}/Processed ]];then
+  ln -sf "${PROCESSED_DIR}" "${EXTRACTED_DIR}/Processed"
 fi

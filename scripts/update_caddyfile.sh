@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+SCRIPTS_DIR="$(getDirectory 'scripts')"
+EXTRACTED_DIR="$(getDirectory 'extracted')"
+
 source /etc/birdnet/birdnet.conf
-my_dir=$HOME/BirdNET-Pi/scripts
 set -x
 [ -d /etc/caddy ] || mkdir /etc/caddy
 if [ -f /etc/caddy/Caddyfile ];then
@@ -10,7 +15,7 @@ if ! [ -z ${CADDY_PWD} ];then
 HASHWORD=$(caddy hash-password --plaintext ${CADDY_PWD})
 cat << EOF > /etc/caddy/Caddyfile
 http:// ${BIRDNETPI_URL} {
-  root * ${EXTRACTED}
+  root * ${EXTRACTED_DIR}
   file_server browse
   handle /By_Date/* {
     file_server browse
@@ -46,7 +51,7 @@ EOF
 else
   cat << EOF > /etc/caddy/Caddyfile
 http:// ${BIRDNETPI_URL} {
-  root * ${EXTRACTED}
+  root * ${EXTRACTED_DIR}
   file_server browse
   handle /By_Date/* {
     file_server browse

@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
 # Restarts ALL services and removes ALL unprocessed audio
 source /etc/birdnet/birdnet.conf
-set -x
-my_dir=$HOME/BirdNET-Pi/scripts
+SCRIPTS_DIR="$(getDirectory 'scripts')"
 
+# Raise script debug flag
+set -x
 
 sudo systemctl stop birdnet_server.service
 sudo systemctl stop birdnet_recording.service

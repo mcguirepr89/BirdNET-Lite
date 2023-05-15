@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+gotty_path="$(getFilePath '.gotty')"
+birdnet_conf_path="$(getFilePath 'birdnet.conf')"
+SCRIPTS_DIR="$(getDirectory 'scripts')"
+BIRDNETPI_DIR="$(getDirectory 'birdnet_pi')"
+
 # Uninstall script to remove everything
 #set -x # Uncomment to debug
 trap 'rm -f ${TMPFILE}' EXIT
-my_dir=$HOME/BirdNET-Pi/scripts
-source /etc/birdnet/birdnet.conf &> /dev/null
-SCRIPTS=($(ls -1 ${my_dir}) ${HOME}/.gotty)
+SCRIPTS=($(ls -1 ${SCRIPTS_DIR}) ${gotty_path})
 set -x
-services=($(awk '/service/ && /systemctl/ && !/php/ {print $3}' ${my_dir}/install_services.sh | sort) custom_recording.service avahi-alias@.service)
+services=($(awk '/service/ && /systemctl/ && !/php/ {print $3}' ${SCRIPTS_DIR}/install_services.sh | sort) custom_recording.service avahi-alias@.service)
 
 remove_services() {
   for i in "${services[@]}"; do
@@ -50,5 +56,5 @@ remove_scripts() {
 remove_services
 remove_scripts
 if [ -d /etc/birdnet ];then sudo rm -drf /etc/birdnet;fi
-if [ -f ${HOME}/BirdNET-Pi/birdnet.conf ];then sudo rm -f ${HOME}/BirdNET-Pi/birdnet.conf;fi
-echo "Uninstall finished. Remove this directory with 'rm -drfv' to finish."
+if [ -f "${birdnet_conf_path}" ];then sudo rm -f "${birdnet_conf_path}";fi
+echo "Uninstall finished. Remove this directory with 'rm -drfv ${BIRDNETPI_DIR}' to finish."

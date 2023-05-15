@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+analyzing_now_txt_path="$(getFilePath 'analyzing_now.txt')"
+HOME_DIR="$(getDirectory 'home')"
+EXTRACTED_DIR="$(getDirectory 'extracted')"
+
 # Make sox spectrogram
 source /etc/birdnet/birdnet.conf
 
@@ -18,11 +25,11 @@ SLEEP_DELAY=$((RECORDING_LENGTH / 4))
 
 # Continuously loop generating a spectrogram every 10 seconds
 while true; do
-  analyzing_now="$(cat $HOME/BirdNET-Pi/analyzing_now.txt)"
+  analyzing_now="$(cat $analyzing_now_txt_path)"
 
   if [ ! -z "${analyzing_now}" ] && [ -f "${analyzing_now}" ]; then
-    spectrogram_png=${EXTRACTED}/spectrogram.png
-    sox -V1 "${analyzing_now}" -n remix 1 rate 24k spectrogram -c "${analyzing_now//$HOME\//}" -o "${spectrogram_png}"
+    spectrogram_png=${EXTRACTED_DIR}/spectrogram.png
+    sox -V1 "${analyzing_now}" -n remix 1 rate 24k spectrogram -c "${analyzing_now//$HOME_DIR\//}" -o "${spectrogram_png}"
   fi
 
   sleep $SLEEP_DELAY

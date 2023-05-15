@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+BIRDS_DB_PATH="$(getFilePath 'birds.db')"
+
 OLDIFS=$IFS
 IFS=\|
-most_recent_results=($(sqlite3 ~/BirdNET-Pi/scripts/birds.db \
+most_recent_results=($(sqlite3 "$BIRDS_DB_PATH" \
   'SELECT Com_Name, Time, Date FROM detections
    ORDER BY Date DESC, Time DESC
    LIMIT 1'))

@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
 # Performs the recording from the specified RTSP stream or soundcard
 source /etc/birdnet/birdnet.conf
+
+STREAM_DATA_DIR="$(getDirectory 'stream_data')"
+RECORDINGS_DIR="$(getDirectory 'recs_dir')"
 
 # Read the logging level from the configuration option
 LOGGING_LEVEL="${LogLevel_BirdnetRecordingService}"
@@ -15,7 +21,7 @@ fi
 [ -z $RECORDING_LENGTH ] && RECORDING_LENGTH=15
 
 if [ ! -z $RTSP_STREAM ];then
-  [ -d $RECS_DIR/StreamData ] || mkdir -p $RECS_DIR/StreamData
+  [ -d $STREAM_DATA_DIR ] || mkdir -p $STREAM_DATA_DIR
   # Explode the RSPT steam setting into an array so we can count the number we have
   RTSP_STREAMS_EXPLODED_ARRAY=(${RTSP_STREAM//,/ })
 
@@ -35,7 +41,7 @@ if [ ! -z $RTSP_STREAM ];then
       # Map id used to map input to output (first stream being 0), this is 0 based in ffmpeg so decrement our counter (which is more human readable) by 1
       MAP_ID=$((RTSP_STREAMS_STARTED_COUNT-1))
       # Build up the parameters to process the RSTP stream, including mapping for the output
-      FFMPEG_PARAMS+="-vn -thread_queue_size 512 -i ${i} -map ${MAP_ID}:a:0 -t ${RECORDING_LENGTH} -acodec pcm_s16le -ac 2 -ar 48000 file:${RECS_DIR}/StreamData/$(date "+%F")-birdnet-RTSP_${RTSP_STREAMS_STARTED_COUNT}-$(date "+%H:%M:%S").wav "
+      FFMPEG_PARAMS+="-vn -thread_queue_size 512 -i ${i} -map ${MAP_ID}:a:0 -t ${RECORDING_LENGTH} -acodec pcm_s16le -ac 2 -ar 48000 file:${STREAM_DATA_DIR}/$(date "+%F")-birdnet-RTSP_${RTSP_STREAMS_STARTED_COUNT}-$(date "+%H:%M:%S").wav "
       # Increment counter
       ((RTSP_STREAMS_STARTED_COUNT += 1))
     done
@@ -56,11 +62,11 @@ else
     done
     if [ -z ${REC_CARD} ];then
       arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH}\
-	      --use-strftime ${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+	      --use-strftime ${RECORDINGS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
     else
       arecord -f S16_LE -c${CHANNELS} -r48000 -t wav --max-file-time ${RECORDING_LENGTH}\
         -D "${REC_CARD}" --use-strftime \
-	${RECS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
+	${RECORDINGS_DIR}/%B-%Y/%d-%A/%F-birdnet-%H:%M:%S.wav
     fi
   fi
 fi

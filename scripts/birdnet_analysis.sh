@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
+SCRIPTS_DIR="$(getDirectory 'scripts')"
+RECORDING_DIR="$(getDirectory 'recs_dir')"
+STREAMDATA_DIR="$(getDirectory 'stream_data')"
+birdnet_conf_path="$(getFilePath 'etc_birdnet.conf')"
+
 # Runs BirdNET-Lite
 #set -x
 source /etc/birdnet/birdnet.conf
 # Document this run's birdnet.conf settings
 # Make a temporary file to compare the current birdnet.conf with
 # the birdnet.conf as it was the last time this script was called
-my_dir=$HOME/BirdNET-Pi/scripts
-if [ -z ${THIS_RUN} ];then THIS_RUN=$my_dir/thisrun.txt;fi
+if [ -z ${THIS_RUN} ];then THIS_RUN="$(getFilePath 'thisrun.txt')";fi
 [ -f ${THIS_RUN} ] || touch ${THIS_RUN} && chmod g+w ${THIS_RUN}
-if [ -z ${LAST_RUN} ];then LAST_RUN=$my_dir/lastrun.txt;fi
+if [ -z ${LAST_RUN} ];then LAST_RUN="$(getFilePath 'lastrun.txt')";fi
 [ -z ${LATITUDE} ] && echo "LATITUDE not set, exiting 1" && exit 1
 [ -z ${LONGITUDE} ] && echo "LONGITUDE not set, exiting 1" && exit 1
 make_thisrun() {
   sleep .4
-  awk '!/#/ && !/^$/ {print}' /etc/birdnet/birdnet.conf \
+  awk '!/#/ && !/^$/ {print}' "${birdnet_conf_path}" \
     > >(tee "${THIS_RUN}")
   sleep .5
 }
@@ -23,14 +30,14 @@ if ! diff ${LAST_RUN} ${THIS_RUN};then
   if grep REC <(diff $LAST_RUN $THIS_RUN);then
     echo "Recording element changed -- restarting 'birdnet_recording.service'"
     sudo systemctl stop birdnet_recording.service
-    sudo rm -rf ${RECS_DIR}/$(date +%B-%Y/%d-%A)/*
+    sudo rm -rf ${RECORDING_DIR}/$(date +%B-%Y/%d-%A)/*
     sudo systemctl start birdnet_recording.service
   fi
   cat ${THIS_RUN} > ${LAST_RUN}
 fi
 
-INCLUDE_LIST="$HOME/BirdNET-Pi/include_species_list.txt"
-EXCLUDE_LIST="$HOME/BirdNET-Pi/exclude_species_list.txt"
+INCLUDE_LIST="$(getFilePath 'include_species_list.txt')"
+EXCLUDE_LIST="$(getFilePath 'exclude_species_list.txt')"
 if [ ! -f ${INCLUDE_LIST} ];then
   touch ${INCLUDE_LIST} &&
     chmod g+rw ${INCLUDE_LIST}
@@ -77,8 +84,9 @@ move_analyzed() {
 # Uses one argument:
 #   - {DIRECTORY}
 run_analysis() {
-  PYTHON_VIRTUAL_ENV="$HOME/BirdNET-Pi/birdnet/bin/python3"
-  DIR="$HOME/BirdNET-Pi/scripts"
+  PYTHON_VIRTUAL_ENV="$(getFilePath 'python3')"
+  DIR="$(getDirectory 'scripts')"
+  analyzing_now_path="$(getFilePath 'analyzing_now.txt')"
 
   sleep .5
 
@@ -97,7 +105,7 @@ run_analysis() {
 
   for i in "${files[@]}";do
     [ ! -f ${1}/${i} ] && continue
-    echo "${1}/${i}" > $HOME/BirdNET-Pi/analyzing_now.txt
+    echo "${1}/${i}" > "${analyzing_now_path}"
     [ -z ${RECORDING_LENGTH} ] && RECORDING_LENGTH=15
     echo "RECORDING_LENGTH set to ${RECORDING_LENGTH}"
     itr=0
@@ -179,13 +187,13 @@ until grep 5050 <(netstat -tulpn 2>&1) &> /dev/null 2>&1;do
   sleep 1
 done
 
-if [ $(find ${RECS_DIR}/StreamData -maxdepth 1 -name '*wav' 2>/dev/null| wc -l) -gt 0 ];then
-  find $RECS_DIR -maxdepth 1 -name '*wav' -type f -size 0 -delete
-  run_birdnet "${RECS_DIR}/StreamData"
+if [ $(find "${STREAMDATA_DIR}" -maxdepth 1 -name '*wav' 2>/dev/null| wc -l) -gt 0 ];then
+  find "${RECORDING_DIR}" -maxdepth 1 -name '*wav' -type f -size 0 -delete
+  run_birdnet "${STREAMDATA_DIR}"
 fi
 
-YESTERDAY="$RECS_DIR/$(date --date="yesterday" "+%B-%Y/%d-%A")"
-TODAY="$RECS_DIR/$(date "+%B-%Y/%d-%A")"
+YESTERDAY="${STREAMDATA_DIR}/$(date --date="yesterday" "+%B-%Y/%d-%A")"
+TODAY="${STREAMDATA_DIR}/$(date "+%B-%Y/%d-%A")"
 if [ $(find ${YESTERDAY} -name '*wav' 2>/dev/null | wc -l) -gt 0 ];then
   find $YESTERDAY -name '*wav' -type f -size 0 -delete
   run_birdnet "${YESTERDAY}"

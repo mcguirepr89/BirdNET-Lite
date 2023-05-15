@@ -1,6 +1,9 @@
 #!/usr/bin/bash
+BINDIR=$(cd $(dirname $0) && pwd)
+. ${BINDIR}/common.sh
+
 # Writes variables to config file
-birdnetpi_dir=$HOME/BirdNET-Pi
+birdnetpi_dir="$(getDirectory 'birdnet_pi')"
 birders_conf=${birdnetpi_dir}/Birders_Guide_Installer_Configuration.txt
 sed -i s/'^LATITUDE=$'/"LATITUDE=${new_lat}"/g ${birders_conf}
 sed -i s/'^LONGITUDE=$'/"LONGITUDE=${new_lon}"/g ${birders_conf}
