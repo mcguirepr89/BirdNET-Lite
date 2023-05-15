@@ -15,6 +15,7 @@ import os
 import sys
 import argparse
 import datetime
+import utils.common as common
 
 try:
     import tflite_runtime.interpreter as tflite
@@ -31,7 +32,7 @@ def loadMetaModel():
     global CLASSES
 
     # Load TFLite model and allocate tensors.
-    M_INTERPRETER = tflite.Interpreter(model_path=userDir + '/BirdNET-Pi/model/BirdNET_GLOBAL_3K_V2.3_MData_Model_FP16.tflite')
+    M_INTERPRETER = tflite.Interpreter(model_path=common.filepath_resolver.get_directory('model') + '/BirdNET_GLOBAL_3K_V2.3_MData_Model_FP16.tflite')
     M_INTERPRETER.allocate_tensors()
 
     # Get input and output tensors.
@@ -44,7 +45,7 @@ def loadMetaModel():
 
     # Load labels
     CLASSES = []
-    labelspath = userDir + '/BirdNET-Pi/model/labels.txt'
+    labelspath = common.filepath_resolver.get_file_path('labels.txt')
     with open(labelspath, 'r') as lfile:
         for line in lfile.readlines():
             CLASSES.append(line.replace('\n', ''))
@@ -103,9 +104,8 @@ def getSpeciesList(lat, lon, week, threshold=0.05, sort=False):
     return slist
 
 
-userDir = os.path.expanduser('~')
-DB_PATH = userDir + '/BirdNET-Pi/scripts/birds.db'
-with open(userDir + '/BirdNET-Pi/scripts/thisrun.txt', 'r') as f:
+DB_PATH = common.filepath_resolver.get_file_path('birds.db')
+with open(common.filepath_resolver.get_file_path('thisrun.txt'), 'r') as f:
 
     this_run = f.readlines()
     lat = str(str(str([i for i in this_run if i.startswith('LATITUDE')]).split('=')[1]).split('\\')[0])

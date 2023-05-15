@@ -13,11 +13,11 @@ import plotly.express as px
 from sklearn.preprocessing import normalize
 from suntime import Sun
 from datetime import datetime
+import utils.common as common
 
 pio.templates.default = "plotly_white"
 
-userDir = os.path.expanduser('~')
-URI_SQLITE_DB = userDir + '/BirdNET-Pi/scripts/birds.db'
+URI_SQLITE_DB = common.filepath_resolver.get_file_path('birds.db')
 
 st.set_page_config(layout='wide')
 
@@ -373,8 +373,8 @@ if daily is False:
                     date_specie = df2.loc[df2['File_Name'] == recording, ['Date', 'Com_Name']]
                     date_dir = date_specie['Date'].values[0]
                     specie_dir = date_specie['Com_Name'].values[0].replace(" ", "_")
-                    st.image(userDir + '/BirdSongs/Extracted/By_Date/' + date_dir + '/' + specie_dir + '/' + recording + '.png')
-                    st.audio(userDir + '/BirdSongs/Extracted/By_Date/' + date_dir + '/' + specie_dir + '/' + recording)
+                    st.image(common.filepath_resolver.get_directory('extracted_by_date') + '/' + date_dir + '/' + specie_dir + '/' + recording + '.png')
+                    st.audio(common.filepath_resolver.get_directory('extracted_by_date') + '/' + date_dir + '/' + specie_dir + '/' + recording)
                 except Exception:
                     st.title('RECORDING NOT AVAILABLE :(')
             # try:
@@ -386,9 +386,8 @@ if daily is False:
             if seen:
                 with colc:
                     verified = st.radio("Verification", ['True Positive', 'False Positive'])
-
                     if verified == "False Positive":
-                        df_names = pd.read_csv(userDir + '/BirdNET-Pi/model/labels.txt', delimiter='_', names=['Sci_Name', 'Com_Name'])
+                        df_names = pd.read_csv(common.filepath_resolver.get_file_path('labels.txt'), delimiter='_', names=['Sci_Name', 'Com_Name'])
                         df_unknown = pd.DataFrame({"Sci_Name": ["UNKNOWN"], "Com_Name": ["UNKNOWN"]})
                         df_names = pd.concat([df_unknown, df_names], ignore_index=True)
                         with cold:
