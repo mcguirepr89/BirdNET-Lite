@@ -245,6 +245,9 @@ if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.2_Model_FP16$' "$etc_birdnet_conf_path";
   sudo chmod +x "$SCRIPTS_DIR"/install_language_label_nm.sh && "$SCRIPTS_DIR"/install_language_label_nm.sh -l "$language"
 fi
 
+# Link in new bash script common.sh to local/bin
+ln -sf ${SCRIPTS_DIR}/common.sh /usr/local/bin/
+
 
 sudo systemctl daemon-reload
 restart_services.sh
