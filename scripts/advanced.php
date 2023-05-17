@@ -513,6 +513,7 @@ foreach($formats as $format){
       <table class="settingstable"><tr><td>
       <h2>BirdNET-Pi Password</h2>
       <p>This password will protect your "Tools" page and "Live Audio" stream.</p>
+      <p>Do NOT use special characters. Accepted characters: [A-Z0-9a-z]</p>
       <label for="caddy_pwd">Password: </label>
       <input style="width:40ch" name="caddy_pwd" id="caddy_pwd" type="password" pattern="[A-Za-z0-9]+" title="Password must be alphanumeric (A-Z, 0-9)" value="<?php print($newconfig['CADDY_PWD']);?>" /><span id="showpassword" onmouseover="document.getElementById('caddy_pwd').type='text';" onmouseout="document.getElementById('caddy_pwd').type='password';">show</span><br>
       </td></tr></table><br>

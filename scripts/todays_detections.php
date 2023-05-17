@@ -660,9 +660,10 @@ function generateMiniGraph(elem, comname) {
     if (xhr.status === 200) {
       var detections = JSON.parse(xhr.responseText);
 
-      console.log(detections)
-
       // Create a div element for the chart window
+      if (typeof(window.chartWindow) != 'undefined') {
+        document.body.removeChild(window.chartWindow);
+      }
       var chartWindow = document.createElement('div');
       chartWindow.className = "chartdiv"
       chartWindow.style.position = 'fixed';
@@ -773,6 +774,7 @@ function generateMiniGraph(elem, comname) {
         document.body.removeChild(chartWindow);
       });
       chartWindow.appendChild(closeButton);
+      window.chartWindow = chartWindow;
     }
   };
   xhr.send();

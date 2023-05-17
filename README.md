@@ -54,6 +54,7 @@ Currently listening in these countries . . . that I know of . . .
 - Estonia
 - Tasmania
 - Luxembourgh
+- Crete
 
 ## Features
 * **24/7 recording and automatic identification** of bird songs, chirps, and peeps using BirdNET machine learning
