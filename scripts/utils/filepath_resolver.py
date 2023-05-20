@@ -1,7 +1,25 @@
 import os
+import json
 
 CONFIG = {}
-userDir = os.path.expanduser('~')
+home = os.path.expanduser('~')
+base_directory_2up = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+# The directory name of the file will start out as /home/pi/BirdNET-Pi/scripts/utils
+# we want to get up to /home/pi/BirdNET-Pi/, then append /config
+if os.path.exists(base_directory_2up + '/config/filepath_map.json'):
+    filePathMap_json_path = base_directory_2up + "/config/filepath_map.json"
+
+filePathMap_data = {}
+
+
+def load_filepath_map():
+    # Loads in the JSON file containing data on directory and file paths
+    global filePathMap_data, filePathMap_json_path
+    if filePathMap_data is not {}:
+        json_input_file = open(filePathMap_json_path)
+        filePathMap_data = json.load(json_input_file)
+
+    return filePathMap_data
 
 
 def get_directory(directory_name):
@@ -9,62 +27,51 @@ def get_directory(directory_name):
 
     directory_name = directory_name.lower()
 
-    if directory_name == "home":
-        return userDir
-    ##
-    elif directory_name == "birdnet-pi" or directory_name == "birdnet_pi":
-        return get_directory('home') + '/BirdNET-Pi'
-    ##
-    elif directory_name == "recs_dir" or directory_name == "recordings_dir":
-        recs_directory_name_setting = CONFIG.get('RECS_DIR')
-        return recs_directory_name_setting.replace('$HOME', get_directory('home'))
-    ##
-    elif directory_name == "processed":
-        processed_directory_name_setting = CONFIG.get('PROCESSED')
-        return get_directory('recs_dir') + processed_directory_name_setting.replace('${RECS_DIR}', '')
-    ##
-    elif directory_name == "extracted":
-        extracted_directory_name_setting = CONFIG.get('EXTRACTED')
-        return get_directory('recs_dir') + extracted_directory_name_setting.replace('${RECS_DIR}', '')
-    ##
-    elif directory_name == "extracted_bydate" or directory_name == "extracted_by_date":
-        return get_directory('extracted') + '/By_Date'
-    ##
-    elif directory_name == "extracted_charts":
-        return get_directory('extracted') + '/Charts'
-    ##
-    elif directory_name == "shifted_audio" or directory_name == "shifted_directory_name":
-        return get_directory('home') + '/BirdSongs/Extracted/By_Date/shifted'
-    ##
-    elif directory_name == "database":
-        ## NOT CURRENTLY USED
-        return get_directory('birdnet_pi') + '/database'
-    ##
-    elif directory_name == "config":
-        ## NOT CURRENTLY USED
-        return get_directory('birdnet_pi') + '/config'
-    ##
-    elif directory_name == "models" or directory_name == "model":
-        return get_directory('birdnet_pi') + '/model'
-    ##
-    elif directory_name == "python3_ve":
-        return get_directory('birdnet_pi') + '/birdnet/bin'
-    ##
-    elif directory_name == "scripts":
-        return get_directory('birdnet_pi') + '/scripts'
-    ##
-    elif directory_name == "stream_data":
-        return get_directory('recs_dir') + '/StreamData'
-    ##
-    elif directory_name == "templates":
-        return get_directory('birdnet_pi') + '/templates'
-    ##
-    elif directory_name == "web" or directory_name == "www":
-        return get_directory('birdnet_pi') + '/homepage'
-    ##
-    elif directory_name == "web_fonts" or directory_name == "www_fonts":
-        return get_directory('www') + '/static'
-    ##
+    filepathmap_directories = load_filepath_map().get('directories')
+
+    if directory_name in filepathmap_directories:
+        filepathmap_directories_selected = filepathmap_directories.get(directory_name)
+
+        # Check to see if directory is an alias for another
+        dir_alias = filepathmap_directories_selected.get('alias_for') if filepathmap_directories_selected.get('alias_for') is not None else ''
+        if len(dir_alias) != 0:
+            # If so load in the data for that directory
+            filepathmap_directories_selected = filepathmap_directories.get(dir_alias)
+
+        # Gather all the options into variables
+        setting_value = filepathmap_directories_selected.get('read_setting') if filepathmap_directories_selected.get('read_setting') is not None else ''
+        lives_under = filepathmap_directories_selected.get('lives_under') if filepathmap_directories_selected.get('lives_under') is not None else ''
+        replace_text = filepathmap_directories_selected.get('replace_setting_text') if filepathmap_directories_selected.get('replace_setting_text') is not None else ''
+        replace_text_with = filepathmap_directories_selected.get('replace_setting_text_with') if filepathmap_directories_selected.get('replace_setting_text_with') is not None else ''
+        append = filepathmap_directories_selected.get('append') if filepathmap_directories_selected.get('append') is not None else ''
+        return_var = filepathmap_directories_selected.get('return_var') if filepathmap_directories_selected.get('return_var') is not None else ''
+        ##
+        return_value = under_directory = ''
+
+        # Get the directory which the directory we 're processing lives under
+        if len(lives_under) != 0:
+            under_directory = get_directory(lives_under)
+
+        # Read the specified config file setting
+        if len(setting_value) != 0:
+            setting_value = CONFIG.get(setting_value)
+
+        # Replace value in setting, like ${RECS_DIR} etc as they are not expanded
+        if len(replace_text) != 0:
+            return_value = setting_value.replace(replace_text, replace_text_with)
+        else:
+            return_value = setting_value
+
+        # If a variable is specified for return, return it first
+        if len(return_var) != 0:
+            # return the dynamic variable, currently this is just the users home path in $home
+            return globals()[f'{return_var}']
+        elif len(append) != 0:
+            # Append this to the end of the path, (models, scripts etc) do this as they reside under BirdNET - pi
+            return under_directory + append
+        else:
+            # Else return the directory and result of the setting manipulation
+            return under_directory + return_value
 
     return ""
 
@@ -72,84 +79,51 @@ def get_directory(directory_name):
 def get_file_path(filename):
     # Returns the full filepath for the specified filename
 
-    if filename == "analyzing_now.txt":
-        return get_directory('birdnet_pi') + "/analyzing_now.txt"
-    ##
-    elif filename == "apprise.txt":
-        return get_directory('birdnet_pi') + "/apprise.txt"
-    ##
-    elif filename == "birdnet.conf":
-        return get_directory('birdnet_pi') + "/birdnet.conf"
-    ##
-    elif filename == "etc_birdnet.conf":
-        return "/etc/birdnet/birdnet.conf"
-    ##
-    elif filename == "BirdDB.txt":
-        return get_directory('birdnet_pi') + "/BirdDB.txt"
-    ##
-    elif filename == "birds.db":
-        return get_directory('scripts') + "/birds.db"
-    ##
-    elif filename == "blacklisted_images.txt":
-        return get_directory('scripts') + "/blacklisted_images.txt"
-    ##
-    elif filename == "disk_check_exclude.txt":
-        return get_directory('scripts') + "/disk_check_exclude.txt"
-    ##
-    elif filename == "email_template":
-        return get_directory('scripts') + "/email_template"
-    ##
-    elif filename == "email_template2":
-        return get_directory('scripts') + "/email_template2"
-    ##
-    elif filename == "exclude_species_list.txt":
-        return get_directory('scripts') + "/exclude_species_list.txt"
-    ##
-    elif filename == "firstrun.ini":
-        return get_directory('birdnet_pi') + "/firstrun.ini"
-    ##
-    elif filename == ".gotty":
-        return get_directory('home') + "/.gotty"
-    ##
-    elif filename == "HUMAN.txt":
-        return get_directory('birdnet_pi') + "/HUMAN.txt"
-    ##
-    elif filename == "IdentifiedSoFar.txt" or filename == "IDFILE":
-        id_file_location = CONFIG.get('IDFILE')
-        return get_directory('home') + id_file_location.replace('$HOME', '')
-    ##
-    elif filename == "include_species_list.txt":
-        return get_directory('scripts') + "/include_species_list.txt"
-    ##
-    elif filename == "labels.txt" or filename == "labels.txt.old":
-        return get_directory('model') + '/' + filename
-    ##
-    elif filename == "labels_flickr.txt":
-        return get_directory('model') + "/labels_flickr.txt"
-    ##
-    elif filename == "labels_l18n.zip":
-        return get_directory('model') + "/labels_l18n.zip"
-    ##
-    elif filename == "labels_lang.txt":
-        return get_directory('model') + "/labels_lang.txt"
-    ##
-    elif filename == "labels_nm.zip":
-        return get_directory('model') + "/labels_nm.zip"
-    ##
-    elif filename == "lastrun.txt":
-        return get_directory('scripts') + "/lastrun.txt"
-    ##
-    elif filename == "python3":
-        return get_directory('python3_ve') + "/python3 "
-    ##
-    elif filename == "python3_appraise":
-        return get_directory('python3_ve') + "/apprise "
-    ##
-    elif filename == "species.py":
-        return get_directory('scripts') + "/species.py"
-    ##
-    elif filename == "thisrun.txt":
-        return get_directory('scripts') + "/thisrun.txt"
-    ##
+    filepathmap_files = load_filepath_map().get('files')
+
+    if filename in filepathmap_files:
+        filepathmap_file_selected = filepathmap_files.get(filename)
+
+        # Check to see if directory is an alias for another
+        dir_alias = filepathmap_file_selected.get('alias_for') if filepathmap_file_selected.get(
+            'alias_for') is not None else ''
+        if len(dir_alias) != 0:
+            # If so load in the data for that directory
+            filepathmap_file_selected = filepathmap_files.get(dir_alias)
+
+        # Gather all the options into variables
+        setting_value = filepathmap_file_selected.get('read_setting') if filepathmap_file_selected.get('read_setting') is not None else ''
+        lives_under = filepathmap_file_selected.get('lives_under') if filepathmap_file_selected.get('lives_under') is not None else ''
+        replace_text = filepathmap_file_selected.get('replace_setting_text') if filepathmap_file_selected.get('replace_setting_text') is not None else ''
+        replace_text_with = filepathmap_file_selected.get('replace_setting_text_with') if filepathmap_file_selected.get('replace_setting_text_with') is not None else ''
+        append = filepathmap_file_selected.get('append') if filepathmap_file_selected.get('append') is not None else ''
+        return_val = filepathmap_file_selected.get('return_var') if filepathmap_file_selected.get('return_var') is not None else ''
+        ##
+        under_directory = ''
+
+        # Get the directory which the directory we 're processing lives under
+        if len(lives_under) != 0:
+            under_directory = get_directory(lives_under)
+
+        # Read the specified config file setting
+        if len(setting_value) != 0:
+            setting_value = CONFIG.get(setting_value)
+
+        # Replace value in setting, like ${RECS_DIR} etc as they are not expanded
+        if len(replace_text) != 0:
+            return_value = setting_value.replace(replace_text, replace_text_with)
+        else:
+            return_value = setting_value
+
+        # If a variable is specified for return, return it first
+        if len(return_val) != 0:
+            # return the dynamic variable, currently this is just the users home path in $home
+            return return_val
+        elif len(append) != 0:
+            # Append this to the end of the path, (models, scripts etc) do this as they reside under BirdNET - pi
+            return under_directory + append
+        else:
+            # Else return the directory and result of the setting manipulation
+            return under_directory + return_value
 
     return ""

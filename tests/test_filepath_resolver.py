@@ -10,9 +10,10 @@ TEST_HOMES = ['/home/pi' '/home/another_user' '/opt/birdnet']
 def test():
     for _test_home in TEST_HOMES:
         # Override the home location
-        filepath_resolver.userDir = _test_home
+        filepath_resolver.home = _test_home
 
         # DIRECTORY TESTS
+        assert (filepath_resolver.get_directory('home') == _test_home)
         assert (filepath_resolver.get_directory('birdnet_pi') == _test_home + "/BirdNET-Pi")
         assert (filepath_resolver.get_directory('recs_dir') == _test_home + "/BirdSongs")
         assert (filepath_resolver.get_directory('processed') == _test_home + "/BirdSongs/Processed")
@@ -41,6 +42,7 @@ def test():
         assert (filepath_resolver.get_file_path('email_template2') == _test_home + "/BirdNET-Pi/scripts/email_template2")
         assert (filepath_resolver.get_file_path('exclude_species_list.txt') == _test_home + "/BirdNET-Pi/scripts/exclude_species_list.txt")
         assert (filepath_resolver.get_file_path('firstrun.ini') == _test_home + "/BirdNET-Pi/firstrun.ini")
+        assert (filepath_resolver.get_file_path('filepath_map.json') == _test_home + "/BirdNET-Pi/config/filepath_map.json")
         assert (filepath_resolver.get_file_path('.gotty') == _test_home + "/.gotty")
         assert (filepath_resolver.get_file_path('HUMAN.txt') == _test_home + "/BirdNET-Pi/HUMAN.txt")
         assert (filepath_resolver.get_file_path('IdentifiedSoFar.txt') == _test_home + "/BirdNET-Pi/IdentifiedSoFar.txt")
@@ -48,8 +50,8 @@ def test():
         assert (filepath_resolver.get_file_path('labels.txt') == _test_home + "/BirdNET-Pi/model/labels.txt")
         assert (filepath_resolver.get_file_path('labels.txt.old') == _test_home + "/BirdNET-Pi/model/labels.txt.old")
         assert (filepath_resolver.get_file_path('labels_flickr.txt') == _test_home + "/BirdNET-Pi/model/labels_flickr.txt")
-        assert (filepath_resolver.get_file_path('labels_l18n.zip') == _test_home + "/BirdNET-Pi/model/labels_l18n.zip")
         assert (filepath_resolver.get_file_path('labels_lang.txt') == _test_home + "/BirdNET-Pi/model/labels_lang.txt")
+        assert (filepath_resolver.get_file_path('labels_l18n.zip') == _test_home + "/BirdNET-Pi/model/labels_l18n.zip")
         assert (filepath_resolver.get_file_path('labels_nm.zip') == _test_home + "/BirdNET-Pi/model/labels_nm.zip")
         assert (filepath_resolver.get_file_path('lastrun.txt') == _test_home + "/BirdNET-Pi/scripts/lastrun.txt")
         assert (filepath_resolver.get_file_path('python3') == _test_home + "/BirdNET-Pi/birdnet/bin/python3 ")
