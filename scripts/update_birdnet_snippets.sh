@@ -226,6 +226,9 @@ if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.2_Model_FP16$' /etc/birdnet/birdnet.conf
   sudo chmod +x $HOME/BirdNET-Pi/scripts/install_language_label_nm.sh && $HOME/BirdNET-Pi/scripts/install_language_label_nm.sh -l "$language"
 fi
 
+# Symlink the new config directory into the Extracted directory
+[ -L ~/BirdSongs/Extracted/config ] || ln -sf ~/BirdNET-Pi/config ~/BirdSongs/Extracted
+
 
 sudo systemctl daemon-reload
 restart_services.sh

@@ -96,6 +96,7 @@ $langs = array(
 
 //Reference to database connection
 $DB_CONN = null;
+$DB_CONN_STATUS = '';
 $USER_AUTHENTICATED = false;
 
 /**
@@ -104,14 +105,23 @@ $USER_AUTHENTICATED = false;
  */
 function connect_to_birdsdb()
 {
-	global $DB_CONN, $api_incl;
+	global $DB_CONN, $DB_CONN_STATUS;
 
 	//Initially check to see if the DB is already connected, it will not be null if it has
 	if ($DB_CONN == null) {
 		try {
-			$DB_CONN = new SQLite3(getFilePath('birds.db'), SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
-			if ($DB_CONN == False) {
-				birdnet_error_log("connect_to_birdsdb:: birds.db database is busy");
+			$birds_db_path = getFilePath('birds.db');
+			if (!empty($birds_db_path)) {
+				$DB_CONN = new SQLite3($birds_db_path, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
+				if ($DB_CONN == False) {
+					$DB_CONN_STATUS = 'birds.db database is busy.';
+					birdnet_error_log("connect_to_birdsdb:: $DB_CONN_STATUS");
+				}else{
+					$DB_CONN_STATUS = 'birds.db database successfully connected.';
+				}
+			} else {
+				$DB_CONN_STATUS = "No filepath to birds.db was returned by the resolver, so it wasn't able to be connected.";
+				birdnet_error_log("connect_to_birdsdb:: $DB_CONN_STATUS");
 			}
 		} catch (Exception $sql_exec) {
 			birdnet_error_log("connect_to_birdsdb:: Exception occurred while trying to open birds.db - " . $sql_exec->getMessage());
@@ -146,7 +156,7 @@ function disconnect_from_birdsdb()
  */
 function db_execute_query($query, $bind_params = [], $fetchAllRecords = false, $fetchMode = SQLITE3_ASSOC)
 {
-	global $DB_CONN;
+	global $DB_CONN, $DB_CONN_STATUS;
 	$success = false;
 	$message = '';
 	$data_to_return = null;
@@ -154,17 +164,14 @@ function db_execute_query($query, $bind_params = [], $fetchAllRecords = false, $
 	//Connect to the DB
 	connect_to_birdsdb();
 	try {
-		$stmt = $DB_CONN->prepare($query);
-		//
-		if (!empty($bind_params)) {
-			//Loop over the bind values and add them
-			foreach ($bind_params as $bind_key => $bind_value) {
-				$stmt->bindValue($bind_key, $bind_value);
-			}
+		if (!$DB_CONN) {
+			throw new Exception('birds.db database not connected. ' . $DB_CONN_STATUS);
 		}
 
+		$stmt = $DB_CONN->prepare($query);
+
 		if ($stmt == False) {
-			//get caller's function name
+			//get caller's function name so we can try to identify function called db_execute_query
 			$caller_func_name = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'];
 			$error_msg = "$caller_func_name => db_execute_custom_query:: birds.db database is busy or a query error occurred";
 			//
@@ -175,6 +182,13 @@ function db_execute_query($query, $bind_params = [], $fetchAllRecords = false, $
 			//Log the error message
 			birdnet_error_log($error_msg);
 		} else {
+			if (!empty($bind_params)) {
+				//Loop over the bind values and add them
+				foreach ($bind_params as $bind_key => $bind_value) {
+					$stmt->bindValue($bind_key, $bind_value);
+				}
+			}
+
 			$result = $stmt->execute();
 			//Initial result collection
 			$resultArray = $result->fetchArray($fetchMode);
@@ -197,9 +211,10 @@ function db_execute_query($query, $bind_params = [], $fetchAllRecords = false, $
 			$success = true;
 			$message = 'Ok';
 		}
+
 	} catch (Exception $sql_exec) {
 		$caller_func_name = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'];
-		$error_msg = "$caller_func_name => db_execute_custom_query:: Exception occurred while executing query - " . $sql_exec->getMessage();
+		$error_msg = " $caller_func_name => db_execute_query:: Exception occurred while executing query - " . $sql_exec->getMessage();
 		//
 		$success = false;
 		$message = $error_msg;

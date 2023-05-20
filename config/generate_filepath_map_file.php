@@ -1,7 +1,10 @@
 <?php
 /**
  * Script to allow easy manipulation and generation of ../config/filepath_map.json
- * Execute this script with php -a ./generate_filepath_map_file.php
+ * Add new directories or files to this file then,
+ * Execute this script with php ./generate_filepath_map_file.php
+ *
+ * Please keep this file updated if you prefer editing filepath_map.json directly, otherwise if changed will be overwritten if this script is used ot generate a new JSON file
  */
 
 ############################
