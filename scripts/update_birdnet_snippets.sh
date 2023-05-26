@@ -248,8 +248,9 @@ if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.2_Model_FP16$' "$etc_birdnet_conf_path";
   sudo chmod +x "$SCRIPTS_DIR"/install_language_label_nm.sh && "$SCRIPTS_DIR"/install_language_label_nm.sh -l "$language"
 fi
 
-# Link in new bash script common.sh to local/bin
-ln -sf ${SCRIPTS_DIR}/common.sh /usr/local/bin/
+# Link in new bash script common.sh to local/bin and make sure the config directory is also
+[ -L /usr/local/bin/common.sh ] || ln -sf ${SCRIPTS_DIR}/common.sh /usr/local/bin/
+[ -L /usr/local/bin/config ] || ln -sf ${BIRDNET_PI_DIR}/config /usr/local/bin/
 
 
 sudo systemctl daemon-reload
