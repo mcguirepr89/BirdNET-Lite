@@ -1,4 +1,9 @@
 <?php
+
+/* Prevent XSS input */
+$_GET   = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
 $sys_timezone = "";
 // If we can get the timezome from the systems timezone file ust that
 if (file_exists('/etc/timezone')) {
@@ -99,4 +104,4 @@ echo "
 <iframe src=\"/views.php\"></iframe>
 </div>";
 }
-
+?>
