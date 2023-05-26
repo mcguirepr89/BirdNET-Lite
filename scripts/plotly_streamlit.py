@@ -45,7 +45,8 @@ def get_connection(path: str):
     return sqlite3.connect(path, check_same_thread=False)
 
 
-def get_data(conn: Connection):
+@st.cache_resource()
+def get_data(_conn: Connection):
     df1 = pd.read_sql("SELECT * FROM detections", con=conn)
     return df1
 

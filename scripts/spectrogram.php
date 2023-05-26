@@ -316,6 +316,46 @@ function toggleCompression(state) {
   }
 }
 
+function toggleFreqshift(state) {
+  if (state == true) {
+    console.log("freqshift activated")
+  } else {
+    console.log("freqshift deactivated")
+  }
+
+  var livestream_freqshift_spinner = document.getElementById('livestream_freqshift_spinner');
+  livestream_freqshift_spinner.style.display = "inline"; 
+  // Create the XMLHttpRequest object.
+  const xhr = new XMLHttpRequest();
+  // Initialize the request
+  xhr.open("GET", './views.php?activate_freqshift_in_livestream=' + state + '&view=Advanced&submit=advanced');
+  // Send the request
+  xhr.send();
+  // Fired once the request completes successfully
+  xhr.onload = function (e) {
+    // Check if the request was a success
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+      // Restart the audio player in case it stopped working while the livestream service was restarted
+      var audio_player = document.querySelector('audio#player');
+      if (audio_player !== 'undefined') {
+        //central_controls_element.appendChild(h1_loading);
+        //Wait 2 seconds before restarting the stream
+        setTimeout(function () {
+          console.log("Restarting connection with livestream");
+          audio_player.pause();
+          audio_player.setAttribute('src', '/stream');
+          audio_player.load();
+          audio_player.play();
+
+          livestream_freqshift_spinner.style.display = "none"; 
+        },
+        2000
+        )
+      }
+    }
+  }
+}
+
 function initialize() {
   document.body.querySelector('h1').remove();
   const CVS = document.body.querySelector('canvas');
@@ -354,6 +394,7 @@ function initialize() {
     gainNode.connect(ACTX.destination);
 
     document.getElementById("compression").removeAttribute("disabled");
+    document.getElementById("freqshift").removeAttribute("disabled");
 
     console.log(SOURCE);
     const DATA = new Uint8Array(ANALYSER.frequencyBinCount);
@@ -470,8 +511,20 @@ h1 {
   </div>
     &mdash;
   <div style="display:inline" id="comp" >
-  <label>Compression: </label>
+    <label>Compression: </label>
     <input name="compression" type="checkbox" id="compression" disabled>
+  </div>
+  <div style="display:inline" id="fshift" >
+    <label>Freq shift: </label>
+    <?php 
+        if ($config['ACTIVATE_FREQSHIFT_IN_LIVESTREAM'] == "true") {
+          $freqshift_state = "checked";
+        } else {
+          $freqshift_state = "";
+        }
+    ?>
+    <input name="freqshift" type="checkbox" id="freqshift" <?php echo($freqshift_state); ?>  disabled>
+    <img id="livestream_freqshift_spinner" src=images/spinner.gif style="height: 25px; vertical-align: top; display: none">
   </div>
 </div>
 
@@ -541,5 +594,10 @@ slider.oninput = function() {
 var compression = document.getElementById("compression");
 compression.onclick = function() {
   toggleCompression(this.checked);
+}
+
+var freqshift = document.getElementById("freqshift");
+freqshift.onclick = function() {
+  toggleFreqshift(this.checked);
 }
 </script>

@@ -113,7 +113,7 @@ if(isset($_GET["latitude"])){
     echo "<script>setTimeout(
     function() {
       const xhttp = new XMLHttpRequest();
-    xhttp.open(\"GET\", \"./config.php?restart_php=true\", true);
+    xhttp.open(\"GET\", \"./views.php?view=Settings&restart_php=true\", true);
     xhttp.send();
     }, 1000);</script>";
   }
@@ -375,7 +375,8 @@ function sendTestNotification(e) {
       <span <?php if($config['MODEL'] == "BirdNET_6K_GLOBAL_MODEL") { ?>style="display: none"<?php } ?> id="soft">
       <label for="sf_thresh">Species Occurence Frequency Threshold [0.0005, 0.99]: </label>
       <input name="sf_thresh" type="number" max="0.99" min="0.0005" step="any" value="<?php print($config['SF_THRESH']);?>"/> <span onclick="document.getElementById('sfhelp').style.display='unset'" style="text-decoration:underline;cursor:pointer">[more info]</span><br>
-      <p id="sfhelp" style='display:none'>This value is used by the model to constrain the list of possible species that it will try to detect, given the minimum occurence frequency. A 0.03 threshold means that for a species to be included in this list, it needs to, on average, be seen on at least 3% of historically submitted eBird checklists for your given lat/lon/current week of year. So, the lower the threshold, the rarer the species it will include.<br><br>If you'd like to tinker with this threshold value and see which species make it onto the list, <?php if($config['MODEL'] == "BirdNET_6K_GLOBAL_MODEL"){ ?>please click "Update Settings" at the very bottom of this page to install the appropriate label file, then come back here and you'll be able to use the Species List Tester.<?php } else { ?>you can use this tool: <button type="button" class="testbtn" id="openModal">Species List Tester</button><?php } ?></p>
+      <p id="sfhelp" style='display:none'>This value is used by the model to constrain the list of possible species that it will try to detect, given the minimum occurence frequency. A 0.03 threshold means that for a species to be included in this list, it needs to, on average, be seen on at least 3% of historically submitted eBird checklists for your given lat/lon/current week of year. So, the lower the threshold, the rarer the species it will include.<br><img style='width:75%;padding-top:5px;padding-bottom:5px' alt="BirdNET-Pi new model detection flowchart" title="BirdNET-Pi new model detection flowchart" src="https://i.imgur.com/8YEAuSA.jpeg">
+        <br>If you'd like to tinker with this threshold value and see which species make it onto the list, <?php if($config['MODEL'] == "BirdNET_6K_GLOBAL_MODEL"){ ?>please click "Update Settings" at the very bottom of this page to install the appropriate label file, then come back here and you'll be able to use the Species List Tester.<?php } else { ?>you can use this tool: <button type="button" class="testbtn" id="openModal">Species List Tester</button><?php } ?></p>
       </span>
 
 <script src="static/dialog-polyfill.js"></script>
@@ -467,7 +468,7 @@ function runProcess() {
       output.innerHTML = xhr.responseText;
     }
   };
-  xhr.open('GET', `scripts/config.php?threshold=${threshold}`);
+  xhr.open('GET', `views.php?view=Settings&threshold=${threshold}`);
   xhr.send();
 }
 </script>
