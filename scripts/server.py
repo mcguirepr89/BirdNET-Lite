@@ -14,9 +14,9 @@ import socket
 import threading
 import os
 import gzip
+import utils.common as common
 
 from utils.notifications import sendAppriseNotifications
-from utils.parse_settings import config_to_settings
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -34,8 +34,7 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
-userDir = os.path.expanduser('~')
-DB_PATH = userDir + '/BirdNET-Pi/scripts/birds.db'
+DB_PATH = common.filepath_resolver.get_file_path('birds.db')
 
 PREDICTED_SPECIES_LIST = []
 
@@ -50,7 +49,7 @@ except BaseException:
 
 
 # Open most recent Configuration and grab DB_PWD as a python variable
-with open(userDir + '/BirdNET-Pi/scripts/thisrun.txt', 'r') as f:
+with open(common.filepath_resolver.get_file_path('thisrun.txt'), 'r') as f:
     this_run = f.readlines()
     audiofmt = "." + str(str(str([i for i in this_run if i.startswith('AUDIOFMT')]).split('=')[1]).split('\\')[0])
     priv_thresh = float("." + str(str(str([i for i in this_run if i.startswith('PRIVACY_THRESHOLD')]).split('=')[1]).split('\\')[0])) / 10
@@ -73,7 +72,7 @@ def loadModel():
 
     # Load TFLite model and allocate tensors.
     # model will either be BirdNET_GLOBAL_3K_V2.3_Model_FP16 (new) or BirdNET_6K_GLOBAL_MODEL (old)
-    modelpath = userDir + '/BirdNET-Pi/model/'+model+'.tflite'
+    modelpath = common.filepath_resolver.get_directory('model') + '/'+model+'.tflite'
     myinterpreter = tflite.Interpreter(model_path=modelpath, num_threads=2)
     myinterpreter.allocate_tensors()
 
@@ -89,7 +88,7 @@ def loadModel():
 
     # Load labels
     CLASSES = []
-    labelspath = userDir + '/BirdNET-Pi/model/labels.txt'
+    labelspath = common.filepath_resolver.get_file_path('labels.txt')
     with open(labelspath, 'r') as lfile:
         for line in lfile.readlines():
             CLASSES.append(line.replace('\n', ''))
@@ -106,7 +105,7 @@ def loadMetaModel():
     global M_OUTPUT_LAYER_INDEX
 
     # Load TFLite model and allocate tensors.
-    M_INTERPRETER = tflite.Interpreter(model_path=userDir + '/BirdNET-Pi/model/BirdNET_GLOBAL_3K_V2.3_MData_Model_FP16.tflite')
+    M_INTERPRETER = tflite.Interpreter(model_path=common.filepath_resolver.get_directory('model') + '/BirdNET_GLOBAL_3K_V2.3_MData_Model_FP16.tflite')
     M_INTERPRETER.allocate_tensors()
 
     # Get input and output tensors.
@@ -265,7 +264,7 @@ def predict(sample, sensitivity):
 
     for i in range(min(10, len(p_sorted))):
         if p_sorted[i][0] == 'Human_Human':
-            with open(userDir + '/BirdNET-Pi/HUMAN.txt', 'a') as rfile:
+            with open(common.filepath_resolver.get_file_path('HUMAN.txt'), 'a') as rfile:
                 rfile.write(str(datetime.datetime.now()) + str(p_sorted[i]) + ' ' + str(human_cutoff) + '\n')
 
     return p_sorted[:human_cutoff]
@@ -469,8 +468,7 @@ def handle_client(conn, addr):
                 myReturn = ''
                 for i in detections:
                     myReturn += str(i) + '-' + str(detections[i][0]) + '\n'
-
-                with open(userDir + '/BirdNET-Pi/BirdDB.txt', 'a') as rfile:
+                with open(common.filepath_resolver.get_file_path('BirdDB.txt'), 'a') as rfile:
                     for d in detections:
                         species_apprised_this_run = []
                         for entry in detections[d]:
@@ -516,7 +514,7 @@ def handle_client(conn, addr):
 
                                 # Apprise of detection if not already alerted this run.
                                 if not entry[0] in species_apprised_this_run:
-                                    settings_dict = config_to_settings(userDir + '/BirdNET-Pi/scripts/thisrun.txt')
+                                    settings_dict = common.parse_settings.config_to_settings(common.filepath_resolver.get_file_path('thisrun.txt'))
                                     sendAppriseNotifications(species,
                                                              str(score),
                                                              str(round(score * 100)),
