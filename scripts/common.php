@@ -56,7 +56,7 @@ if ($config["SITE_NAME"] == "") {
 	$site_name = $config['SITE_NAME'];
 }
 
-$models = array("BirdNET_6K_GLOBAL_MODEL", "BirdNET_GLOBAL_3K_V2.3_Model_FP16");
+$models = array("BirdNET_6K_GLOBAL_MODEL", "BirdNET_GLOBAL_6K_V2.4_Model_FP16");
 $audio_formats = array("8svx", "aif", "aifc", "aiff", "aiffc", "al", "amb", "amr-nb", "amr-wb", "anb", "au", "avr", "awb", "caf", "cdda", "cdr", "cvs", "cvsd", "cvu", "dat", "dvms", "f32", "f4", "f64", "f8", "fap", "flac", "fssd", "gsm", "gsrt", "hcom", "htk", "ima", "ircam", "la", "lpc", "lpc10", "lu", "mat", "mat4", "mat5", "maud", "mp2", "mp3", "nist", "ogg", "paf", "prc", "pvf", "raw", "s1", "s16", "s2", "s24", "s3", "s32", "s4", "s8", "sb", "sd2", "sds", "sf", "sl", "sln", "smp", "snd", "sndfile", "sndr", "sndt", "sou", "sox", "sph", "sw", "txw", "u1", "u16", "u2", "u24", "u3", "u32", "u4", "u8", "ub", "ul", "uw", "vms", "voc", "vorbis", "vox", "w64", "wav", "wavpcm", "wv", "wve", "xa", "xi");
 $freqshift_tools = array("sox", "ffmpeg");
 
@@ -1028,7 +1028,7 @@ function changeLanguage($model, $language)
 			// Archive old language file
 			$result = syslog_shell_exec("cp -f " . getFilePath('labels.txt') . " " . getFilePath('labels.txt.old'), $user);
 
-			if ($model == "BirdNET_GLOBAL_3K_V2.3_Model_FP16") {
+			if ($model == "BirdNET_GLOBAL_6K_V2.4_Model_FP16") {
 				// Install new language label file
 				$result = syslog_shell_exec("sudo chmod +x $scripts_dir/install_language_label_nm.sh && $scripts_dir/install_language_label_nm.sh -l $language", $user);
 			} else {
