@@ -256,11 +256,11 @@ if ! grep LogLevel_SpectrogramViewerService "$etc_birdnet_conf_path" &>/dev/null
   sudo -u$USER echo "LogLevel_SpectrogramViewerService=\"error\"" >> "$etc_birdnet_conf_path"
 fi
 
-if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.2_Model_FP16$' "$etc_birdnet_conf_path";then
+if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.3_Model_FP16$' "$etc_birdnet_conf_path";then
   language=$(grep "^DATABASE_LANG=" "$etc_birdnet_conf_path" | cut -d= -f2)
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$etc_birdnet_conf_path"
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$thisrun_txt_path"
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$birdnet_conf_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$etc_birdnet_conf_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$thisrun_txt_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$birdnet_conf_path"
   cp -f "$labels_txt_path" "$labels_txt_old_path"
   sudo chmod +x "$SCRIPTS_DIR"/install_language_label_nm.sh && "$SCRIPTS_DIR"/install_language_label_nm.sh -l "$language"
 fi

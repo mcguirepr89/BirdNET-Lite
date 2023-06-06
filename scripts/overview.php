@@ -212,9 +212,7 @@ die();
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Overview</title>
 <style>
-body::-webkit-scrollbar {
-  display:none
-}
+
 </style>
 </head>
 <div class="overview">
