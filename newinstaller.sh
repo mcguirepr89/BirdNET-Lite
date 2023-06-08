@@ -22,7 +22,7 @@ export HOME=$HOME
 export USER=$USER
 
 PACKAGES_MISSING=
-for cmd in git jq ; do
+for cmd in git jq net-tools ; do
   if ! which $cmd &> /dev/null;then
       PACKAGES_MISSING="${PACKAGES_MISSING} $cmd"
   fi
