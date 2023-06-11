@@ -11,7 +11,7 @@ SITE_NAME=""
 #______________________used for detecting bird audio.__________________________#
 #_It's recommended that you only change these values through the web interface.#
 
-MODEL=BirdNET_6K_GLOBAL_MODEL
+MODEL=BirdNET_GLOBAL_6K_V2.4_Model_FP16
 SF_THRESH=0.03
 
 #--------------------- Required: Latitude, and Longitude ----------------------#
