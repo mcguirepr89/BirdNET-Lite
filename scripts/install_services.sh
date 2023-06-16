@@ -46,6 +46,7 @@ Description=BirdNET Analysis
 After=birdnet_server.service
 Requires=birdnet_server.service
 [Service]
+RuntimeMaxSec=900
 Restart=always
 Type=simple
 RestartSec=2

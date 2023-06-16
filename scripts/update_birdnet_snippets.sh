@@ -211,7 +211,7 @@ streamlit_version=$($PYTHON3_VE_DIR/pip3 show streamlit 2>/dev/null | grep Versi
 [[ $streamlit_version != "1.19.0" ]] && $PYTHON3_VE_DIR/pip3 install streamlit==1.19.0
 
 if ! grep -q 'RuntimeMaxSec=' "$TEMPLATES_DIR/birdnet_analysis.service"&>/dev/null; then
-    sudo -E sed -i '/\[Service\]/a RuntimeMaxSec=3600' "$TEMPLATES_DIR/birdnet_analysis.service"
+    sudo -E sed -i '/\[Service\]/a RuntimeMaxSec=900' "$TEMPLATES_DIR/birdnet_analysis.service"
     sudo systemctl daemon-reload && restart_services.sh
 fi
 
