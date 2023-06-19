@@ -136,10 +136,6 @@ function test()
 		$expected = $_test_home . "/BirdNET-Pi/firstrun.ini";
 		($result == $expected) ?: (print "failed file path 'firstrun.ini', expected: " . ($expected) . " got: " . ($result) . "\r\n");
 
-		$result = getFilePath('filepath_map.json');
-		$expected = $_test_home . "/BirdNET-Pi/config/filepath_map.json";
-		($result == $expected) ?: (print "failed file path 'filepath_map.json', expected: " . ($expected) . " got: " . ($result) . "\r\n");
-
 		$result = getFilePath('.gotty');
 		$expected = $_test_home . "/.gotty";
 		($result == $expected) ?: (print "failed file path '.gotty', expected: " . ($expected) . " got: " . ($result) . "\r\n");

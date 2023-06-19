@@ -225,7 +225,7 @@ parseConfig();
 <script>
   document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('modelsel').addEventListener('change', function() {
-    if(this.value == "BirdNET_GLOBAL_3K_V2.3_Model_FP16"){
+    if(this.value == "BirdNET_GLOBAL_6K_V2.4_Model_FP16"){
       document.getElementById("soft").style.display="unset";
     } else {
       document.getElementById("soft").style.display="none";
@@ -370,11 +370,14 @@ function runProcess() {
 </script>
 
       <dl>
-      <dt>BirdNET_6K_GLOBAL_MODEL (2020)</dt><br>
-      <dd id="ddnewline">This is the BirdNET-Lite model, with bird sound recognition for more than 6,000 species worldwide. This is the default option and will generally work very for people in most of the world.</dd>
-    <br>
-      <dt>BirdNET_GLOBAL_3K_V2.3_Model_FP16 (2023)</dt><br>
-      <dd id="ddnewline">This is the BirdNET-Analyzer model, a newer work-in-progress project with aims to improve on the BirdNET-Lite model. Currently it only supports about 3,500 species worldwide, meaning for some regions (North America, Europe, Australia) it will usually outperform the BirdNET-Lite model, but for other regions it will be worse.</dd><br>
+      <dt>BirdNET_GLOBAL_6K_V2.4_Model_FP16 (2023)</dt>
+      <br>
+      <dd id="ddnewline">This is the BirdNET-Analyzer model, the most advanced BirdNET model to date. Currently it  supports over 6,000 species worldwide, giving quite good species coverage for people in most of the world.</dd>
+      <br>
+      <dt>BirdNET_6K_GLOBAL_MODEL (2020)</dt>
+      <br>
+      <dd id="ddnewline">This is the BirdNET-Lite model, with bird sound recognition for more than 6,000 species worldwide. This has generally worse performance than the newer models but is kept as a legacy option.</dd>
+      <br>
       <dt>[ In-depth technical write-up on the models <a target="_blank" href="https://github.com/mcguirepr89/BirdNET-Pi/wiki/BirdNET-Pi:-some-theory-on-classification-&-some-practical-hints">here</a> ]</dt>
       </dl>
       </td></tr></table><br>

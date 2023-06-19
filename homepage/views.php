@@ -37,9 +37,7 @@ elseif ($config["LONGITUDE"] == "0.000") {
 ?>
 <link rel="stylesheet" href="style.css?v=<?php echo date ('n.d.y', filemtime('style.css')); ?>">
 <style>
-body::-webkit-scrollbar {
-  display:none
-}
+
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <div class="topnav" id="myTopnav">

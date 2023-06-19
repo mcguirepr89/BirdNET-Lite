@@ -211,7 +211,7 @@ streamlit_version=$($PYTHON3_VE_DIR/pip3 show streamlit 2>/dev/null | grep Versi
 [[ $streamlit_version != "1.19.0" ]] && $PYTHON3_VE_DIR/pip3 install streamlit==1.19.0
 
 if ! grep -q 'RuntimeMaxSec=' "$TEMPLATES_DIR/birdnet_analysis.service"&>/dev/null; then
-    sudo -E sed -i '/\[Service\]/a RuntimeMaxSec=3600' "$TEMPLATES_DIR/birdnet_analysis.service"
+    sudo -E sed -i '/\[Service\]/a RuntimeMaxSec=900' "$TEMPLATES_DIR/birdnet_analysis.service"
     sudo systemctl daemon-reload && restart_services.sh
 fi
 
@@ -256,17 +256,38 @@ if ! grep LogLevel_SpectrogramViewerService "$etc_birdnet_conf_path" &>/dev/null
   sudo -u$USER echo "LogLevel_SpectrogramViewerService=\"error\"" >> "$etc_birdnet_conf_path"
 fi
 
-if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.2_Model_FP16$' "$etc_birdnet_conf_path";then
+if grep -q '^MODEL=BirdNET_GLOBAL_3K_V2.3_Model_FP16$' "$etc_birdnet_conf_path";then
   language=$(grep "^DATABASE_LANG=" "$etc_birdnet_conf_path" | cut -d= -f2)
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$etc_birdnet_conf_path"
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$thisrun_txt_path"
-  sed -i 's/BirdNET_GLOBAL_3K_V2.2_Model_FP16/BirdNET_GLOBAL_3K_V2.3_Model_FP16/' "$birdnet_conf_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$etc_birdnet_conf_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$thisrun_txt_path"
+  sed -i 's/BirdNET_GLOBAL_3K_V2.3_Model_FP16/BirdNET_GLOBAL_6K_V2.4_Model_FP16/' "$birdnet_conf_path"
   cp -f "$labels_txt_path" "$labels_txt_old_path"
   sudo chmod +x "$SCRIPTS_DIR"/install_language_label_nm.sh && "$SCRIPTS_DIR"/install_language_label_nm.sh -l "$language"
 fi
 
 # Symlink the new config directory into the Extracted & Local Bin directory
 [ -L "$EXTRACTED_DIR/config" ] || ln -sf "$BIRDNET_PI_DIR/config" "$EXTRACTED_DIR"
+
+# if labels_flickr.txt doesnt exist, create it
+labels_file="$HOME/BirdNET-Pi/model/labels_flickr.txt"
+if [ ! -f "$labels_file" ]; then
+    if [ -f "$HOME/BirdNET-Pi/scripts/thisrun.txt" ]; then
+        config_file="$HOME/BirdNET-Pi/scripts/thisrun.txt"
+    elif [ -f "$HOME/BirdNET-Pi/scripts/thisrun.ini" ]; then
+        config_file="$HOME/BirdNET-Pi/scripts/thisrun.ini"
+    fi
+
+    language=$(grep -oP "^DATABASE_LANG\s*=\s*\K.*" "$config_file")
+    model=$(grep -oP "^MODEL\s*=\s*\K.*" "$config_file")
+
+    if [ "$model" == "BirdNET_GLOBAL_6K_V2.4_Model_FP16" ]; then
+        chmod +x "$HOME/BirdNET-Pi/scripts/install_language_label_nm.sh"
+        "$HOME/BirdNET-Pi/scripts/install_language_label_nm.sh" -l "$language"
+    else
+        "$HOME/BirdNET-Pi/scripts/install_language_label.sh" -l "$language"
+    fi
+fi
+
 
 sudo systemctl daemon-reload
 restart_services.sh
