@@ -116,7 +116,7 @@ function connect_to_birdsdb()
 				if ($DB_CONN == False) {
 					$DB_CONN_STATUS = 'birds.db database is busy.';
 					birdnet_error_log("connect_to_birdsdb:: $DB_CONN_STATUS");
-				}else{
+				} else {
 					$DB_CONN_STATUS = 'birds.db database successfully connected.';
 				}
 			} else {
@@ -1042,21 +1042,8 @@ function changeLanguage($model, $language)
 }
 
 /**
- * Loads in the JSON file containing data on directory and file paths
- *
- * @return array
- */
-function loadFilePathMap()
-{
-	global $filePathMap_data, $filePathMap_json_path;
-	if (empty($filePathMap_data)) {
-		$filePathMap_data = json_decode(file_get_contents($filePathMap_json_path), true);
-	}
-	return $filePathMap_data;
-}
-
-/**
  * Directory Path Helper, returns a full directory path for a supplied directory name e.g home, processed, extracted
+ * NOTE: If adding or updating paths, also apply the same modifications the relevant function in common.sh (Used by Shell scripts) and scripts/utils/common.py (Used by Python scripts)
  *
  * @param string $dir The directory to obtain a path for
  * @return string
@@ -1066,56 +1053,61 @@ function getDirectory($dir)
 	global $config, $home;
 	$dir = strtolower($dir);
 
-	$filePathMap_directories = loadFilePathMap()['directories'];
-
-	if (array_key_exists($dir, $filePathMap_directories)) {
-		$filePathMap_directories_selected = $filePathMap_directories[$dir];
-
-		//Check to see if directory is an alias for another
-		$dir_alias = $filePathMap_directories_selected['alias_for'] ?? '';
-		if (!empty($dir_alias)) {
-			//If so load in the data for that directory
-			$filePathMap_directories_selected = $filePathMap_directories[$dir_alias];
-		}
-
-		//Gather all the options into variables
-		$setting_value = $filePathMap_directories_selected['read_setting'] ?? '';
-		$lives_under = $filePathMap_directories_selected['lives_under'] ?? '';
-		$replace_text = $filePathMap_directories_selected['replace_setting_text'] ?? '';
-		$replace_text_with = $filePathMap_directories_selected['replace_setting_text_with'] ?? '';
-		$append = $filePathMap_directories_selected['append'] ?? '';
-		$return_var = $filePathMap_directories_selected['return_var'] ?? '';
+	if ($dir == "home") {
+		return $home;
+	} else if ($dir == "birdnet-pi" || $dir == "birdnet_pi") {
+		return getDirectory('home') . '/BirdNET-Pi';
 		//
-		$return_value = $under_directory = '';
-
-		//Get the directory which the directory we're processing lives under
-		if (!empty($lives_under)) {
-			$under_directory = getDirectory($lives_under);
-		}
-
-		//Read the specified config file setting
-		if (!empty($setting_value)) {
-			$setting_value = $config[$setting_value];
-		}
-
-		//Replace value in setting, like ${RECS_DIR} etc as they are not expanded
-		if (!empty($replace_text)) {
-			$return_value = str_replace($replace_text, $replace_text_with, $setting_value);
-		} else {
-			$return_value = $setting_value;
-		}
-
-		//If a variable is specified for return, return it first
-		if (!empty($return_var)) {
-			//return the dynamic variable, currently this is just the users home path in $home
-			return ${"{$return_var}"};
-		} else if (!empty($append)) {
-			//Append this to the end of the path, (models, scripts etc) do this as they reside under BirdNET-pi
-			return $under_directory . $append;
-		} else {
-			//Else return the directory and result of the setting manipulation
-			return $under_directory . $return_value;
-		}
+	} else if ($dir == "recs_dir" || $dir == "recordings_dir") {
+		$recs_dir_setting = $config['RECS_DIR'];
+		return str_replace('$HOME', getDirectory('home'), $recs_dir_setting);
+		//
+	} else if ($dir == "processed") {
+		$processed_dir_setting = $config['PROCESSED'];
+		return getDirectory('recs_dir') . str_replace('${RECS_DIR}', '', $processed_dir_setting);
+		//
+	} else if ($dir == "extracted") {
+		$extracted_dir_setting = $config['EXTRACTED'];
+		return getDirectory('recs_dir') . str_replace('${RECS_DIR}', '', $extracted_dir_setting);
+		//
+	} elseif ($dir == "extracted_bydate" || $dir == "extracted_by_date") {
+		return getDirectory('extracted') . '/By_Date';
+		//
+	} elseif ($dir == "extracted_charts") {
+		return getDirectory('extracted') . '/Charts';
+		//
+	} elseif ($dir == "shifted_audio" || $dir == "shifted_dir") {
+		return getDirectory('home') . '/BirdSongs/Extracted/By_Date/shifted';
+		//
+	} elseif ($dir == "database") {
+		// NOT YET USED
+		return getDirectory('birdnet_pi') . '/database';
+		//
+	} elseif ($dir == "config") {
+		// NOT YET USED
+		return getDirectory('birdnet_pi') . '/config';
+		//
+	} elseif ($dir == "models" || $dir == "model") {
+		return getDirectory('birdnet_pi') . '/model';
+		//
+	} elseif ($dir == "python3_ve") {
+		return getDirectory('birdnet_pi') . '/birdnet/bin';
+		//
+	} elseif ($dir == "scripts") {
+		return getDirectory('birdnet_pi') . '/scripts';
+		//
+	} elseif ($dir == "stream_data") {
+		return getDirectory('recs_dir') . '/StreamData';
+		//
+	} elseif ($dir == "templates") {
+		return getDirectory('birdnet_pi') . '/templates';
+		//
+	} elseif ($dir == "web" || $dir == "www") {
+		return getDirectory('birdnet_pi') . '/homepage';
+		//
+	} elseif ($dir == "web_fonts" || $dir == "www_fonts") {
+		return getDirectory('www') . '/static';
+		//
 	}
 
 	return "";
@@ -1123,57 +1115,93 @@ function getDirectory($dir)
 
 /**
  * Returns the full filepath for the specified filename
+ * NOTE: If adding or updating paths, also apply the same modifications the relevant function in common.sh (Used by Shell scripts) and scripts/utils/common.py (Used by Python scripts)
  *
  * @param $filename
  * @return string
  */
 function getFilePath($filename)
 {
-	global $config;
+	global $config, $home;
 
-	$filePathMap_files = loadFilePathMap()['files'];
-
-	if (array_key_exists($filename, $filePathMap_files)) {
-		$filePathMap_directories_selected = $filePathMap_files[$filename];
-
-		//Gather all the options into variables
-		$setting_value = $filePathMap_directories_selected['read_setting'] ?? '';
-		$lives_under = $filePathMap_directories_selected['lives_under'] ?? '';
-		$replace_text = $filePathMap_directories_selected['replace_setting_text'] ?? '';
-		$replace_test_with = $filePathMap_directories_selected['replace_setting_text_with'] ?? '';
-		$append = $filePathMap_directories_selected['append'] ?? '';
-		$return_val = $filePathMap_directories_selected['return_var'] ?? '';
+	if ($filename == "analyzing_now.txt") {
+		return getDirectory('birdnet_pi') . "/analyzing_now.txt";
 		//
-		$under_directory = '';
-
-		//Get the directory which the directory we're processing lives under
-		if (!empty($lives_under)) {
-			$under_directory = getDirectory($lives_under);
-		}
-
-		//Read the specified config file setting if any
-		if (!empty($setting_value)) {
-			$setting_value = $config[$setting_value];
-		}
-
-		//Replace value in setting, like ${RECS_DIR} etc as they are not expanded
-		if (!empty($replace_text)) {
-			$return_value = str_replace($replace_text, $replace_test_with, $setting_value);
-		} else {
-			$return_value = $setting_value;
-		}
-
-		//If a variable is specified for return, return it first and directly
-		if (!empty($return_val)) {
-			//return the dynamic variable, currently this is just the users home path in $home
-			return $return_val;
-		} else if (!empty($append)) {
-			//Append this to the end of the path, (models, scripts etc) do this as they reside under BirdNET-pi
-			return $under_directory . $append;
-		} else {
-			//Else return the directory and result of the setting manipulation
-			return $under_directory . $return_value;
-		}
+	} else if ($filename == "apprise.txt") {
+		return getDirectory('birdnet_pi') . "/apprise.txt";
+		//
+	} else if ($filename == "birdnet.conf") {
+		return getDirectory('birdnet_pi') . "/birdnet.conf";
+		//
+	} else if ($filename == "etc_birdnet.conf") {
+		return "/etc/birdnet/birdnet.conf";
+		//
+	} else if ($filename == "BirdDB.txt") {
+		return getDirectory('birdnet_pi') . "/BirdDB.txt";
+		//
+	} else if ($filename == "birds.db") {
+		return getDirectory('scripts') . "/birds.db";
+		//
+	} else if ($filename == "blacklisted_images.txt") {
+		return getDirectory('scripts') . "/blacklisted_images.txt";
+		//
+	} else if ($filename == "disk_check_exclude.txt") {
+		return getDirectory('scripts') . "/disk_check_exclude.txt";
+		//
+	} else if ($filename == "email_template") {
+		return getDirectory('scripts') . "/email_template";
+		//
+	} else if ($filename == "email_template2") {
+		return getDirectory('scripts') . "/email_template2";
+		//
+	} else if ($filename == "exclude_species_list.txt") {
+		return getDirectory('scripts') . "/exclude_species_list.txt";
+		//
+	} else if ($filename == "firstrun.ini") {
+		return getDirectory('birdnet_pi') . "/firstrun.ini";
+		//
+	} else if ($filename == ".gotty") {
+		return getDirectory('home') . "/.gotty";
+		//
+	} else if ($filename == "HUMAN.txt") {
+		return getDirectory('birdnet_pi') . "/HUMAN.txt";
+		//
+	} else if ($filename == "IDFILE" || $filename == "IdentifiedSoFar.txt") {
+		return getDirectory('home') . str_replace('$HOME', '', $config['IDFILE']);
+		//
+	} else if ($filename == "include_species_list.txt") {
+		return getDirectory('scripts') . "/include_species_list.txt";
+		//
+	} else if ($filename == "labels.txt" || $filename == "labels.txt.old") {
+		return getDirectory('model') . "/$filename";
+		//
+	} else if ($filename == "labels_flickr.txt") {
+		return getDirectory('model') . "/labels_flickr.txt";
+		//
+	} else if ($filename == "labels_lang.txt") {
+		return getDirectory('model') . "/labels_lang.txt";
+		//
+	} else if ($filename == "labels_l18n.zip") {
+		return getDirectory('model') . "/labels_l18n.zip";
+		//
+	} else if ($filename == "labels_nm.zip") {
+		return getDirectory('model') . "/labels_nm.zip";
+		//
+	} else if ($filename == "lastrun.txt") {
+		return getDirectory('scripts') . "/lastrun.txt";
+		//
+	} else if ($filename == "python3") {
+		return getDirectory('python3_ve') . "/python3 ";
+		//
+	} else if ($filename == "python3_appraise") {
+		return getDirectory('python3_ve') . "/apprise ";
+		//
+	} else if ($filename == "species.py") {
+		return getDirectory('scripts') . "/species.py";
+		//
+	} else if ($filename == "thisrun.txt") {
+		return getDirectory('scripts') . "/thisrun.txt";
+		//
 	}
 
 	return "";
