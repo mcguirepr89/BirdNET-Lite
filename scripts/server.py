@@ -585,55 +585,79 @@ def handle_client(conn, addr):
                         if birdweather_id != "99999":
                             try:
 
-                                if soundscape_uploaded is False:
-                                    # POST soundscape to server
-                                    soundscape_url = 'https://app.birdweather.com/api/v1/stations/' + \
-                                        birdweather_id + \
-                                        '/soundscapes' + \
-                                        '?timestamp=' + \
-                                        current_iso8601
+                                # BirdWeather submissions are now added to a queue and processed in a seperate thread (via birdweather_submission_processor and birdweather_submit)
+                                # We still collect and compile all the URLS and JSON to pass through
 
-                                    with open(args.i, 'rb') as f:
-                                        wav_data = f.read()
-                                    gzip_wav_data = gzip.compress(wav_data)
-                                    response = requests.post(url=soundscape_url, data=gzip_wav_data, headers={'Content-Type': 'application/octet-stream',
-                                                                                                              'Content-Encoding': 'gzip'})
-                                    print("Soundscape POST Response Status - ", response.status_code)
-                                    sdata = response.json()
-                                    soundscape_id = sdata['soundscape']['id']
-                                    soundscape_uploaded = True
+                                # POST soundscape to server
+                                # Build the URL used when uploading the soundscape
+                                soundscape_url = 'https://app.birdweather.com/api/v1/stations/' + \
+                                                 birdweather_id + \
+                                                 '/soundscapes' + \
+                                                 '?timestamp=' + \
+                                                 current_iso8601
+
+                                # Get the filename for this soundscape file
+                                soundscape_filename = Path(args.i).stem
+
+                                # Extract the audio
+                                with open(args.i, 'rb') as f:
+                                    wav_data = f.read()
+
+                                # Compress the audio data using gzip
+                                gzip_wav_data = gzip.compress(wav_data)
 
                                 # POST detection to server
+                                # Build the URL and all other data (to be added to a json array used when uploading the detection data
                                 detection_url = "https://app.birdweather.com/api/v1/stations/" + birdweather_id + "/detections"
                                 start_time = d.split(';')[0]
                                 end_time = d.split(';')[1]
-                                post_begin = "{ "
+                                #
                                 now_p_start = now + datetime.timedelta(seconds=float(start_time))
                                 current_iso8601 = now_p_start.astimezone(get_localzone()).isoformat()
-                                post_timestamp = "\"timestamp\": \"" + current_iso8601 + "\","
-                                post_lat = "\"lat\": " + str(args.lat) + ","
-                                post_lon = "\"lon\": " + str(args.lon) + ","
-                                post_soundscape_id = "\"soundscapeId\": " + str(soundscape_id) + ","
-                                post_soundscape_start_time = "\"soundscapeStartTime\": " + start_time + ","
-                                post_soundscape_end_time = "\"soundscapeEndTime\": " + end_time + ","
-                                post_commonName = "\"commonName\": \"" + entry[0].split('_')[1].split("/")[0] + "\","
-                                post_scientificName = "\"scientificName\": \"" + entry[0].split('_')[0] + "\","
 
+                                # Build a dictionary that represents the JSON data that will be posted to BirdWeather
+                                # Instead of hand crafting the JSON string, just to ease maintainability
+                                post_data = dict()
+                                post_data['timestamp'] = current_iso8601
+                                post_data['lat'] = str(args.lat)
+                                post_data['lon'] = str(args.lon)
+                                post_data['soundscapeId'] = "{{soundscape_id}}"
+                                post_data['soundscapeStartTime'] = start_time
+                                post_data['soundscapeEndTime'] = end_time
+                                post_data['commonName'] = entry[0].split('_')[1].split("/")[0]
+                                post_data['scientificName'] = entry[0].split('_')[0]
+
+                                # Determine the algorithm used
                                 if model == "BirdNET_GLOBAL_6K_V2.4_Model_FP16":
-                                    post_algorithm = "\"algorithm\": " + "\"2p4\"" + ","
+                                    post_data['algorithm'] = "2p4"
                                 else:
-                                    post_algorithm = "\"algorithm\": " + "\"alpha\"" + ","
+                                    post_data['algorithm'] = "alpha"
 
-                                post_confidence = "\"confidence\": " + str(entry[1])
-                                post_end = " }"
+                                post_data['confidence'] = str(entry[1])
+                                ####
 
-                                post_json = post_begin + post_timestamp + post_lat + post_lon + post_soundscape_id + post_soundscape_start_time + \
-                                    post_soundscape_end_time + post_commonName + post_scientificName + post_algorithm + post_confidence + post_end
-                                print(post_json)
-                                response = requests.post(detection_url, json=json.loads(post_json))
-                                print("Detection POST Response Status - ", response.status_code)
-                            except BaseException:
-                                print("Cannot POST right now")
+                                # Convert the detection data dictionary into a JSON string
+                                post_json = json.dumps(post_data)
+                                # print(post_json)
+
+                                if debug_birdweather_submissions:
+                                    print(
+                                        f'handle_client:: debug_birdweather_submissions:: Add Birdweather queue submission with, soundscape_url:{soundscape_url} - wave_data:{sys.getsizeof(gzip_wav_data) / 1000}KB - detection_url:{detection_url} - json_detection_data:{post_json}')
+
+                                # Create a dictionary containing all the data we need to posts a submission to BirdWeather
+                                submission_data = dict()
+                                submission_data['soundscape_url'] = soundscape_url
+                                submission_data['soundscape_filename'] = soundscape_filename
+                                submission_data['gzip_wav_data'] = gzip_wav_data
+                                submission_data['detection_url'] = detection_url
+                                submission_data['detection_post_json'] = post_json
+
+                                # Add it to the queue to be processed
+                                bw_submission_queue.put_nowait(submission_data)
+
+                            except BaseException as b_exec:
+                                print(f"ERROR: Cannot POST to BirdWeather right now - {b_exec}")
+
         conn.send(myReturn.encode(FORMAT))
 
         # time.sleep(3)
