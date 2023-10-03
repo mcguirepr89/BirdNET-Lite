@@ -136,7 +136,6 @@ function copyOutput(elem) {
   textArea.select();
   document.execCommand("copy");
 }
-
 </script>
 
 <div class="views">
@@ -451,6 +450,7 @@ window.onbeforeunload = function(event) {
 
 function getTheDate(increment) {
   var theDate = "<?php echo $theDate;?>";
+
   d = new Date(theDate);
   d.setDate(d.getDate(theDate) + increment);
   yyyy = d.getFullYear();
@@ -458,7 +458,6 @@ function getTheDate(increment) {
   dd = d.getDate(); if (dd < 10) dd = "0" + dd;
 
   infoSwipe=document.getElementById("divInfoSwipe");
-  console.log(infoSwipe);
 
   if (increment < 0) infoSwipe.textContent = "Decrementing date..."
   if (increment > 0) infoSwipe.textContent = "Incrementing date..."
