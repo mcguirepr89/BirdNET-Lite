@@ -457,10 +457,8 @@ function getTheDate(increment) {
   mm = d.getMonth() + 1; if (mm < 10) mm = "0" + mm;
   dd = d.getDate(); if (dd < 10) dd = "0" + dd;
 
-  infoSwipe=document.getElementById("divInfoSwipe");
-
-  if (increment < 0) infoSwipe.textContent = "Decrementing date..."
-  if (increment > 0) infoSwipe.textContent = "Incrementing date..."
+  swipeSpinner=document.getElementById("SwipeSpinner");
+  swipeSpinner.setAttribute("src","images/spinner.gif");
   
   window.location = "/views.php?date="+yyyy+"-"+mm+"-"+dd+"&view=Daily+Charts";
 }
