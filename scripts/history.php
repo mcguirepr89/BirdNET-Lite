@@ -145,7 +145,6 @@ function submitID() {
   <input type="date" name="date" value="<?php echo $theDate;?>">
   <button type="submit" name="view" value="Daily Charts">Submit Date</button>
 </form>
-<div id="divInfoSwipe" style="text-align:center;padding-bottom:15px;"></div>
 		<table>
 			<tr>
 				<th>Total Detections For The Day</th>
