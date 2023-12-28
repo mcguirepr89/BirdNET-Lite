@@ -67,6 +67,7 @@ def loadModel():
     global INPUT_LAYER_INDEX
     global OUTPUT_LAYER_INDEX
     global MDATA_INPUT_INDEX
+    
     global CLASSES
 
     print('LOADING TF LITE MODEL...', end=' ')
