@@ -363,10 +363,6 @@ $dividedrefresh = $refresh/4;
 if($dividedrefresh < 1) { 
   $dividedrefresh = 1;
 }
-$time = time();
-if (file_exists('./Charts/'.$chart)) {
-  echo "<img id='chart' src=\"/Charts/$chart?nocache=$time\">";
-} 
 ?>
 </div>
 
@@ -375,11 +371,6 @@ if (file_exists('./Charts/'.$chart)) {
 <h3>5 Most Recent Detections</h3>
 <div style="padding-bottom:10px;" id="detections_table"><h3>Loading...</h3></div>
 
-<h3>Currently Analyzing</h3>
-<?php
-$refresh = $config['RECORDING_LENGTH'];
-$time = time();
-echo "<img id=\"spectrogramimage\" src=\"/spectrogram.png?nocache=$time\">";
 
 ?>
 
@@ -400,7 +391,7 @@ function loadDetectionIfNewExists(previous_detection_identifier=undefined) {
 
       // only going to load left chart & 5 most recents if there's a new detection
       loadLeftChart();
-      loadFiveMostRecentDetections();
+      loadFiftyMostRecentDetections();
       refreshTopTen();
     }
   }
@@ -440,7 +431,7 @@ window.setInterval(function(){
   }
 }, <?php echo intval($dividedrefresh); ?>*1000);
 
-function loadFiveMostRecentDetections() {
+function loadFiftyMostRecentDetections() {
   const xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
     if(this.responseText.length > 0 && !this.responseText.includes("Database is busy")) {
@@ -448,20 +439,15 @@ function loadFiveMostRecentDetections() {
     }
   }
   if (window.innerWidth > 500) {
-    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=5", true);
+    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=50", true);
   } else {
-    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=5&mobile=true", true);
+    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=50&mobile=true", true);
   }
   xhttp.send();
 }
 window.addEventListener("load", function(){
   loadDetectionIfNewExists();
 });
-
-// every $refresh seconds, this loop will run and refresh the spectrogram image
-window.setInterval(function(){
-  document.getElementById("spectrogramimage").src = "/spectrogram.png?nocache="+Date.now();
-}, <?php echo $refresh; ?>*1000);
 
 <?php if(isset($config["CUSTOM_IMAGE"]) && strlen($config["CUSTOM_IMAGE"]) > 2){?>
 // every 1 second, this loop will run and refresh the custom image
