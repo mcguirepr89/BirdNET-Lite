@@ -349,6 +349,10 @@ $dividedrefresh = $refresh/4;
 if($dividedrefresh < 1) { 
   $dividedrefresh = 1;
 }
+$time = time();
+if (file_exists('./Charts/'.$chart)) {
+  echo "<img id='chart' src=\"/Charts/$chart?nocache=$time\">";
+} 
 ?>
 </div>
 
