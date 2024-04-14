@@ -206,20 +206,6 @@ if(isset($_GET['ajax_detections']) && $_GET['ajax_detections'] == "true" && isse
         </style>
         <table class="<?php echo ($_GET['previous_detection_identifier'] == 'undefined') ? '' : 'fade-in';  ?>">
           <h3>Most Recent Detection: <span style="font-weight: normal;"><?php echo $mostrecent['Date']." ".$mostrecent['Time'];?></span></h3>
-          <tr>
-            <td class="relative"><a target="_blank" href="index.php?filename=<?php echo $mostrecent['File_Name']; ?>"><img class="copyimage" title="Open in new tab" width="25" height="25" src="images/copy.png"></a>
-            <div class="centered_image_container" style="margin-bottom: 0px !important;">
-              <?php if(!empty($config["FLICKR_API_KEY"]) && strlen($image[2]) > 0) { ?>
-                <img onclick='setModalText(<?php echo $iterations; ?>,"<?php echo urlencode($image[2]); ?>", "<?php echo $image[3]; ?>", "<?php echo $image[4]; ?>", "<?php echo $image[1]; ?>", "<?php echo $image[5]; ?>")' src="<?php echo $image[1]; ?>" class="img1">
-              <?php } ?>
-              <form action="" method="GET">
-                  <input type="hidden" name="view" value="Species Stats">
-                  <button type="submit" name="species" value="<?php echo $mostrecent['Com_Name'];?>"><?php echo $mostrecent['Com_Name'];?></button><img style="width: unset !important;display: inline;height: 1em;cursor:pointer" title="View species stats" onclick="generateMiniGraph(this, '<?php echo $comname; ?>')" width=25 src="images/chart.svg"><br>
-                  <a href="https://wikipedia.org/wiki/<?php echo $sciname;?>" target="_blank"><i><?php echo $mostrecent['Sci_Name'];?></i></a>
-                  <br>Confidence: <?php echo $percent = round((float)round($mostrecent['Confidence'],2) * 100 ) . '%';?><br></div><br>
-                  <video style="margin-top:10px" onplay='setLiveStreamVolume(0)' onended='setLiveStreamVolume(1)' onpause='setLiveStreamVolume(1)' controls poster="<?php echo $filename.".png";?>" preload="none" title="<?php echo $filename;?>"><source src="<?php echo $filename;?>"></video></td>
-              </form>
-          </tr>
         </table> <?php break;
       }
   }
@@ -368,7 +354,7 @@ if($dividedrefresh < 1) {
 
 <div id="most_recent_detection"></div>
 <br>
-<h3>5 Most Recent Detections</h3>
+<h3>50 Most Recent Detections</h3>
 <div style="padding-bottom:10px;" id="detections_table"><h3>Loading...</h3></div>
 
 
