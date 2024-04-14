@@ -1,4 +1,4 @@
-<h1 align="center"><a href="https://github.com/mcguirepr89/BirdNET-Pi/blob/main/LICENSE">Review the license!!</a></h1>
+<h1 align="center"><a href="https://github.com/fordb/BirdNET-Pi/blob/main/LICENSE">Review the license!!</a></h1>
 <h1 align="center">You may not use BirdNET-Pi to develop a commercial product!!!!</h1>
 <h1 align="center">
   BirdNET-Pi
@@ -91,7 +91,7 @@ Please note that installing BirdNET-Pi on top of other servers is not supported.
 
 The system can be installed with:
 ```
-curl -s https://raw.githubusercontent.com/mcguirepr89/BirdNET-Pi/main/newinstaller.sh | bash
+curl -s https://raw.githubusercontent.com/fordb/BirdNET-Pi/main/newinstaller.sh | bash
 ```
 The installer takes care of any and all necessary updates, so you can run that as the very first command upon the first boot, if you'd like.
 
