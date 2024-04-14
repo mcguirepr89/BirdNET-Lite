@@ -43,12 +43,12 @@ now = datetime.now()
 df_plt_today = df_plt[df_plt['Date'] == now.strftime("%Y-%m-%d")]
 
 # Set number of species to report
-readings = 10
+readings = 25
 
-plt_top10_today = (df_plt_today['Com_Name'].value_counts()[:readings])
-df_plt_top10_today = df_plt_today[df_plt_today.Com_Name.isin(plt_top10_today.index)]
+plt_top_n_today = (df_plt_today['Com_Name'].value_counts()[:readings])
+df_plt_top_n_today = df_plt_today[df_plt_today.Com_Name.isin(plt_top_n_today.index)]
 
-if df_plt_top10_today.empty:
+if df_plt_top_n_today.empty:
     exit(0)
 
 # Set Palette for graphics
@@ -59,10 +59,10 @@ f, axs = plt.subplots(1, 2, figsize=(10, 4), gridspec_kw=dict(width_ratios=[3, 6
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0, hspace=0)
 
 # generate y-axis order for all figures based on frequency
-freq_order = pd.value_counts(df_plt_top10_today['Com_Name']).iloc[:readings].index
+freq_order = pd.value_counts(df_plt_top_n_today['Com_Name']).iloc[:readings].index
 
 # make color for max confidence --> this groups by name and calculates max conf
-confmax = df_plt_top10_today.groupby('Com_Name')['Confidence'].max()
+confmax = df_plt_top_n_today.groupby('Com_Name')['Confidence'].max()
 # reorder confmax to detection frequency order
 confmax = confmax.reindex(freq_order)
 
@@ -71,7 +71,7 @@ norm = plt.Normalize(confmax.values.min(), confmax.values.max())
 colors = plt.cm.Greens(norm(confmax))
 
 # Generate frequency plot
-plot = sns.countplot(y='Com_Name', data=df_plt_top10_today, palette=colors, order=freq_order, ax=axs[0])
+plot = sns.countplot(y='Com_Name', data=df_plt_top_n_today, palette=colors, order=freq_order, ax=axs[0])
 
 
 # Try plot grid lines between bars - problem at the moment plots grid lines on bars - want between bars
@@ -82,7 +82,7 @@ plot.set(xlabel="Detections")
 
 
 # Generate crosstab matrix for heatmap plot
-heat = pd.crosstab(df_plt_top10_today['Com_Name'], df_plt_top10_today['Hour of Day'])
+heat = pd.crosstab(df_plt_top_n_today['Com_Name'], df_plt_top_n_today['Hour of Day'])
 
 # Order heatmap Birds by frequency of occurrance
 heat.index = pd.CategoricalIndex(heat.index, categories=freq_order)
@@ -128,7 +128,7 @@ plot.set(ylabel=None)
 plot.set(xlabel="Hour of Day")
 # Set combined plot layout and titles
 f.subplots_adjust(top=0.9)
-plt.suptitle("Top 10 Last Updated: " + str(now.strftime("%Y-%m-%d %H:%M")))
+plt.suptitle("Top 25 Last Updated: " + str(now.strftime("%Y-%m-%d %H:%M")))
 
 # Save combined plot
 userDir = os.path.expanduser('~')
