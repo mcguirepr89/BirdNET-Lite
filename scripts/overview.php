@@ -361,9 +361,6 @@ if (file_exists('./Charts/'.$chart)) {
 <h3>50 Most Recent Detections</h3>
 <div style="padding-bottom:10px;" id="detections_table"><h3>Loading...</h3></div>
 
-
-?>
-
 <div id="customimage"></div>
 <br>
 
