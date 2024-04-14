@@ -358,7 +358,7 @@ if (file_exists('./Charts/'.$chart)) {
 
 <div id="most_recent_detection"></div>
 <br>
-<h3>50 Most Recent Detections</h3>
+<h3>5 Most Recent Detections</h3>
 <div style="padding-bottom:10px;" id="detections_table"><h3>Loading...</h3></div>
 
 <div id="customimage"></div>
@@ -426,9 +426,9 @@ function loadFiftyMostRecentDetections() {
     }
   }
   if (window.innerWidth > 500) {
-    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=50", true);
+    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=5", true);
   } else {
-    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=50&mobile=true", true);
+    xhttp.open("GET", "todays_detections.php?ajax_detections=true&display_limit=undefined&hard_limit=5&mobile=true", true);
   }
   xhttp.send();
 }
