@@ -378,7 +378,7 @@ function loadDetectionIfNewExists(previous_detection_identifier=undefined) {
 
       // only going to load left chart & 5 most recents if there's a new detection
       loadLeftChart();
-      loadFiftyMostRecentDetections();
+      loadFiveMostRecentDetections();
       refreshTopTen();
     }
   }
@@ -418,7 +418,7 @@ window.setInterval(function(){
   }
 }, <?php echo intval($dividedrefresh); ?>*1000);
 
-function loadFiftyMostRecentDetections() {
+function loadFiveMostRecentDetections() {
   const xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
     if(this.responseText.length > 0 && !this.responseText.includes("Database is busy")) {
