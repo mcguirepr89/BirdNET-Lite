@@ -1,10 +1,11 @@
 import sqlite3
 import os
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from datetime import datetime
+from datetime import datetime, timedelta
 import textwrap
 import matplotlib.font_manager as font_manager
 from matplotlib import rcParams
@@ -12,20 +13,12 @@ from matplotlib import rcParams
 userDir = os.path.expanduser('~')
 conn = sqlite3.connect(userDir + '/BirdNET-Pi/scripts/birds.db')
 df = pd.read_sql_query("SELECT * from detections", conn)
-cursor = conn.cursor()
-cursor.execute('SELECT * FROM detections WHERE Date = DATE(\'now\', \'localtime\')')
-
-table_rows = cursor.fetchall()
-
-# df=pd.DataFrame(table_rows)
 
 # Convert Date and Time Fields to Panda's format
-df['Date'] = pd.to_datetime(df['Date'])
-df['Time'] = pd.to_datetime(df['Time'], unit='ns')
-
+df['Timestamp'] = pd.to_datetime(df['Date'] + ' ' + df['Time'])
 
 # Add round hours to dataframe
-df['Hour of Day'] = [r.hour for r in df.Time]
+df['Hour of Day'] = [r.hour for r in df.Timestamp]
 
 # Create separate dataframes for separate locations
 df_plt = df  # Default to use the whole Dbase
@@ -35,18 +28,21 @@ font_dir = [userDir + '/BirdNET-Pi/homepage/static']
 for font in font_manager.findSystemFonts(font_dir):
     font_manager.fontManager.addfont(font)
 
-# Set font family globally
-rcParams['font.family'] = 'Roboto Flex'
-
-# Get todays readings
+# Get readings for past 24 hours
 now = datetime.now()
-df_plt_today = df_plt[df_plt['Date'] == now.strftime("%Y-%m-%d")]
+now_rounded_up = now + timedelta(hours=1)
+now_rounded_up = now_rounded_up.replace(minute=0, second=0, microsecond=0)
+# Calculate the datetime for 24 hours ago
+one_day_ago = now_rounded_up - timedelta(days=1)
+
+# Filter the DataFrame for rows where the 'Timestamp' is within the past 24 hours
+df_last_24_hours = df[(df['Timestamp'] >= one_day_ago) & (df['Timestamp'] <= now)]
 
 # Set number of species to report
 readings = 25
 
-plt_top_n_today = (df_plt_today['Com_Name'].value_counts()[:readings])
-df_plt_top_n_today = df_plt_today[df_plt_today.Com_Name.isin(plt_top_n_today.index)]
+plt_top_n_today = (df_last_24_hours['Com_Name'].value_counts()[:readings])
+df_plt_top_n_today = df_last_24_hours[df_last_24_hours.Com_Name.isin(plt_top_n_today.index)]
 
 if df_plt_top_n_today.empty:
     exit(0)
@@ -73,13 +69,11 @@ colors = plt.cm.Greens(norm(confmax))
 # Generate frequency plot
 plot = sns.countplot(y='Com_Name', data=df_plt_top_n_today, palette=colors, order=freq_order, ax=axs[0])
 
-
 # Try plot grid lines between bars - problem at the moment plots grid lines on bars - want between bars
 z = plot.get_ymajorticklabels()
 plot.set_yticklabels(['\n'.join(textwrap.wrap(ticklabel.get_text(), 15)) for ticklabel in plot.get_yticklabels()], fontsize=10)
 plot.set(ylabel=None)
 plot.set(xlabel="Detections")
-
 
 # Generate crosstab matrix for heatmap plot
 heat = pd.crosstab(df_plt_top_n_today['Com_Name'], df_plt_top_n_today['Hour of Day'])
@@ -139,8 +133,8 @@ plt.close()
 
 
 # Get Bottom detection frequency
-plt_Bot10_today = (df_plt_today['Com_Name'].value_counts()[-readings:])
-df_plt_Bot10_today = df_plt_today[df_plt_today.Com_Name.isin(plt_Bot10_today.index)]
+plt_Bot10_today = (df_last_24_hours['Com_Name'].value_counts()[-readings:])
+df_plt_Bot10_today = df_last_24_hours[df_last_24_hours.Com_Name.isin(plt_Bot10_today.index)]
 
 # Set Palette for graphics
 pal = "Reds"
@@ -211,7 +205,7 @@ f.subplots_adjust(top=0.9)
 plt.suptitle("Bottom 10 Last Updated: " + str(now.strftime("%Y-%m-%d %H:%M")))
 
 # Save combined plot
-savename = userDir + '/BirdSongs/Extracted/Charts/Combo2-' + str(now.strftime("%Y-%m-%d")) + '.png'
+savename = '/Users/ford/Desktop/Combo2-' + str(now.strftime("%Y-%m-%d")) + '.png'
 plt.savefig(savename)
 plt.show()
 plt.close()
