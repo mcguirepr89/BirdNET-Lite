@@ -178,6 +178,23 @@ function relativeTime($ts)
     }
 }
 
+if (isset($_GET['recent_detections']) && is_numeric($_GET['limit'])) {
+  $limit = intval($_GET['limit']);
+  $query = 'SELECT Com_Name, Time FROM detections ORDER BY Time DESC LIMIT ?';
+  $stmt = $db->prepare($query);
+  if ($stmt) {
+      $stmt->bindParam(1, $limit, SQLITE3_INTEGER);
+      $result = $stmt->execute();
+      echo "<table>";
+      while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+          echo "<tr><td>{$row['Time']}</td><td>{$row['Com_Name']}</td></tr>";
+      }
+      echo "</table>";
+  } else {
+      echo "Database is busy";
+  }
+  die();
+}
 
 if(isset($_GET['ajax_detections']) && $_GET['ajax_detections'] == "true"  ) {
   if(isset($_GET['searchterm'])) {

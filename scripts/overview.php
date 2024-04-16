@@ -380,6 +380,7 @@ function loadDetectionIfNewExists(previous_detection_identifier=undefined) {
       loadLeftChart();
       loadFiveMostRecentDetections();
       refreshTopTen();
+      loadRecentDetections(10);
     }
   }
   xhttp.open("GET", "overview.php?ajax_detections=true&previous_detection_identifier="+previous_detection_identifier, true);
@@ -403,6 +404,18 @@ function refreshTopTen() {
   }
   }
   xhttp.open("GET", "overview.php?fetch_chart_string=true", true);
+  xhttp.send();
+}
+function loadRecentDetections(N) {
+  const xhttp = new XMLHttpRequest();
+  xhttp.onload = function() {
+      if (this.responseText.length > 0 && !this.responseText.includes("Database is busy")) {
+          document.getElementById("detections_table").innerHTML = this.responseText;
+      } else {
+          document.getElementById("detections_table").innerHTML = "<p>Error loading data. Please try again.</p>";
+      }
+  }
+  xhttp.open("GET", `todays_detections.php?recent_detections=true&limit=${N}`, true);
   xhttp.send();
 }
 window.setInterval(function(){
