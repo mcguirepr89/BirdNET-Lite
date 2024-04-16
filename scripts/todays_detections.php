@@ -180,7 +180,7 @@ function relativeTime($ts)
 
 if (isset($_GET['recent_detections']) && is_numeric($_GET['limit'])) {
   $limit = intval($_GET['limit']);
-  $query = 'SELECT Com_Name, Time FROM detections ORDER BY Time DESC LIMIT ?';
+  $query = 'SELECT Com_Name, Time, Date || \' \' || Time FROM detections ORDER BY 3 DESC LIMIT ?';
   $stmt = $db->prepare($query);
   if ($stmt) {
       $stmt->bindParam(1, $limit, SQLITE3_INTEGER);

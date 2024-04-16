@@ -359,7 +359,10 @@ if (file_exists('./Charts/'.$chart)) {
 <div id="most_recent_detection"></div>
 <br>
 <h3>5 Most Recent Detections</h3>
-<div style="padding-bottom:10px;" id="detections_table"><h3>Loading...</h3></div>
+<div id="five_most_recent_detections" style="padding-bottom:10px;"><h3>Loading...</h3></div>
+<br>
+<h3>Recent Detections</h3>
+<div id="recent_detections" style="padding-bottom:10px;"><h3>Loading...</h3></div>
 
 <div id="customimage"></div>
 <br>
