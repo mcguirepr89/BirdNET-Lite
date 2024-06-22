@@ -16,6 +16,8 @@ TMPFILE=$(mktemp)
 #SCAN_DIRS are all directories marked "Analyzed"
 SCAN_DIRS=($(find $RECS_DIR -type d -name '*Analyzed' 2>/dev/null | sort ))
 
+NOISE_SCRIPT=${HOME}'/BirdNET-Pi/scripts/reducenoise.py'
+
 for h in "${SCAN_DIRS[@]}";do
   # The TMPFILE is created from each .csv file BirdNET creates
   # within each "Analyzed" directory
@@ -115,8 +117,16 @@ for h in "${SCAN_DIRS[@]}";do
       END=${RECORDING_LENGTH}
     fi
 
-    sox -V1 "${h}/${OLDFILE}" "${NEWSPECIES_BYDATE}/${NEWFILE}" \
-      trim ="${START}" ="${END}"
+    #sox -V1 "${h}/${OLDFILE}" "${NEWSPECIES_BYDATE}/${NEWFILE}" \
+    #  trim ="${START}" ="${END}"
+
+    # reduce noise and normalize
+    echo Enhancing  "${h}/${OLDFILE}"
+    cp "${h}/${OLDFILE}" /tmp/input.wav
+    python3 ${NOISE_SCRIPT} "${h}/${OLDFILE}" /tmp/temp1.wav
+
+    # output
+    sox -V0 /tmp/temp1.wav "${NEWSPECIES_BYDATE}/${NEWFILE}" trim ="${START}" ="${END}"
 
     RAW_SPECTROGRAM=${RAW_SPECTROGRAM}
     # Check if RAW_SPECTROGRAM is 1
